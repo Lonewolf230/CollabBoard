@@ -1,0 +1,23 @@
+.whiteboard-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-color: #f9f9f9;
+    overflow: hidden;
+  }
+  
+  .whiteboard-content {
+    position: absolute;
+    top: 0;
+    left: 60px; /* Default collapsed sidebar width */
+    right: 0;
+    bottom: 70px; /* Height of toolbar */
+    transition: left 0.3s ease-in-out;
+    background-color: white;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Adjust whiteboard content when sidebar is expanded */
+  .sidebar.expanded ~ .whiteboard-content {
+    left: 220px;
+  }

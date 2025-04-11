@@ -1,0 +1,134 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease-in-out;
+    z-index: 100;
+    overflow: hidden;
+    scrollbar-width: none;
+  }
+  
+  .sidebar.collapsed {
+    width: 60px;
+  }
+  
+  .sidebar.expanded {
+    width: 220px;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .sidebar-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .toggle-btn {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    transition: background-color 0.2s, transform 0.2s;
+  }
+  
+  .toggle-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .toggle-btn:active {
+    transform: scale(0.95);
+  }
+  
+  .sidebar-content {
+    flex-grow: 1;
+    padding: 16px 0;
+    overflow-y: auto;
+  }
+  
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    color: #555;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    border-radius: 0;
+    margin: 4px 0;
+  }
+  
+  .sidebar-item:hover {
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  
+  .sidebar-item:active {
+    transform: scale(0.98);
+  }
+  
+  .sidebar-item span {
+    margin-left: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .expanded .sidebar-item span {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .sidebar-footer {
+    padding: 9px 0;
+    border-top: 0px solid #eaeaea;
+  }
+  
+  .logout {
+    color: #e74c3c;
+  }
+  
+  .sidebar-item.logout:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+  
+  /* Staggered animation for menu items */
+  .sidebar-content .sidebar-item:nth-child(1) span {
+    transition-delay: 0.05s;
+  }
+  .sidebar-content .sidebar-item:nth-child(2) span {
+    transition-delay: 0.1s;
+  }
+  .sidebar-content .sidebar-item:nth-child(3) span {
+    transition-delay: 0.15s;
+  }
+  .sidebar-content .sidebar-item:nth-child(4) span {
+    transition-delay: 0.2s;
+  }
+  .sidebar-content .sidebar-item:nth-child(5) span {
+    transition-delay: 0.25s;
+  }
+  .sidebar-content .sidebar-item:nth-child(6) span {
+    transition-delay: 0.3s;
+  }
+  .sidebar-content .sidebar-item:nth-child(7) span {
+    transition-delay: 0.35s;
+  }

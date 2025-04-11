@@ -1,0 +1,91 @@
+/* .tool-bar{
+    padding: 10px 100px;
+    position: relative;
+    top: 100%;
+    bottom: 0px;
+    display: flex;
+    justify-content: space-between;
+}*/
+
+/* .tool{
+    padding: 10px;
+    cursor: pointer;
+    transition: backgroundColor 0.4s;
+    border: none;
+    border-radius: 5px;
+} 
+
+.tool:hover{
+    background-color: lightblue;
+    
+}
+
+.tool-bar {
+    padding: 10px 100px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    background-color: #fff; 
+    border-top: 1px solid #ccc; 
+} */
+
+/* .tool-bar {
+    padding: 10px 40px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    background-color: #ffffff;
+    border-top: 1px solid #ddd;
+  }
+  
+  .tool-bar div {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+  }
+  
+  .tool-bar div:hover {
+    background: #f0f0f0;
+  }
+   */
+
+   .tool {
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.4s;
+    border: none;
+    border-radius: 5px;
+} 
+
+.tool:hover {
+    background-color: lightblue;
+    transform: translateY(-2px);
+}
+
+.tool.active {
+    background-color: #e6f7ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #0066cc;
+}
+
+.tool-bar {
+    padding: 10px 100px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    background-color: #fff;
+    border-top: 1px solid #eaeaea;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
