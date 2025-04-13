@@ -13,9 +13,9 @@ export default function FabricCanvas({ canvasRef }: Props) {
 
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "white",
-      width: window.innerWidth,
-      height: window.innerHeight - 80,
-    });
+      width: window.innerWidth+1500,
+      height: window.innerHeight + 1080,
+    })
 
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
     canvas.freeDrawingBrush.color = "black";
@@ -42,5 +42,7 @@ export default function FabricCanvas({ canvasRef }: Props) {
     };
   }, [canvasRef]);
 
-  return <canvas ref={htmlCanvasRef} />;
+  return <div style={{overflow:"scroll"}}>
+    <canvas ref={htmlCanvasRef}></canvas>
+  </div>;
 }

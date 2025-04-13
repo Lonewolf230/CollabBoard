@@ -1,0 +1,315 @@
+/* CollaborateDialog.css */
+
+.collaborate-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+  
+  .collaborate-dialog {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 600px;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .collaborate-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .collaborate-dialog-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 4px;
+    color: #666;
+  }
+  
+  .close-button:hover {
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  
+  .collaborate-dialog-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 70vh;
+  }
+  
+  .whiteboard-info {
+    margin-bottom: 20px;
+  }
+  
+  .whiteboard-info h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .owner-info {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  .add-collaborator {
+    margin-bottom: 24px;
+  }
+  
+  .add-collaborator h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .add-collaborator-form {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .email-input-group {
+    flex: 1;
+    position: relative;
+  }
+  
+  .email-input-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .email-input-group input.error {
+    border-color: #e74c3c;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 4px;
+    position: absolute;
+  }
+  
+  .access-selector {
+    width: 140px;
+  }
+  
+  .access-selector select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+  }
+  
+  .add-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .add-button:hover {
+    background-color: #2563eb;
+  }
+  
+  .collaborators-list h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .no-collaborators {
+    color: #666;
+    font-style: italic;
+    padding: 20px 0;
+    text-align: center;
+  }
+  
+  .collaborators-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .collaborators-table th,
+  .collaborators-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .collaborators-table th {
+    font-weight: 500;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .collaborators-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .email-cell {
+    width: 40%;
+  }
+  
+  .access-cell {
+    width: 25%;
+    position: relative;
+  }
+  
+  .access-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    font-size: 13px;
+    width: fit-content;
+  }
+  
+  .access-select {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+  
+  .status-cell {
+    width: 20%;
+  }
+  
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  
+  .status.invited {
+    color: #10b981;
+  }
+  
+  .status.pending {
+    color: #f59e0b;
+  }
+  
+  .actions-cell {
+    width: 15%;
+    text-align: right;
+  }
+  
+  .remove-button {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+  }
+  
+  .remove-button:hover {
+    background-color: #fee2e2;
+  }
+  
+  .collaborate-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+  }
+  
+  .cancel-button {
+    padding: 8px 16px;
+    background-color: transparent;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .cancel-button:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .send-invites-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .send-invites-button:hover {
+    background-color: #2563eb;
+  }
+  
+  .send-invites-button:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 640px) {
+    .add-collaborator-form {
+      flex-direction: column;
+    }
+    
+    .access-selector {
+      width: 100%;
+    }
+    
+    .collaborators-table {
+      font-size: 13px;
+    }
+    
+    .access-badge {
+      font-size: 12px;
+      padding: 3px 6px;
+    }
+  }

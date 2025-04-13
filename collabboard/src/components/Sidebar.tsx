@@ -13,12 +13,19 @@ import {
 import './Sidebar.css';
 import ExportDialog from './dialogBoxes/ExportDialog';
 import { useFabric } from '../context/FabricContext';
+import ShareDialog from './dialogBoxes/ShareDialog';
+import CollaborateDialog from './dialogBoxes/CollaborateDialog';
 
 interface SidebarProps {
   onLogout?: () => void;
+  whiteboardId?: string;
+  currentUserEmail?: string;
 }
 
-export default function Sidebar({ onLogout = () => console.log('Logout clicked') }: SidebarProps) {
+export default function Sidebar({ 
+      onLogout = () => console.log('Logout clicked'),
+      whiteboardId='default',
+      currentUserEmail='manish2306j@gmail.com' }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const canvas=useFabric()
@@ -30,9 +37,9 @@ export default function Sidebar({ onLogout = () => console.log('Logout clicked')
     setActiveDialog(dialogName)
   }
 
-  const closeDialog=()=>[
+  const closeDialog=()=>{
     setActiveDialog(null)
-  ]
+  }
   return (
     <>
   <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
@@ -86,9 +93,19 @@ export default function Sidebar({ onLogout = () => console.log('Logout clicked')
             canvas={canvas}
       />
     )}
-    {activeDialog === 'collaborate' && <div className="dialog">Collaborate Dialog</div>}
+    {activeDialog === 'share' && (
+      <ShareDialog isOpen={activeDialog==='share'}
+        onClose={closeDialog}
+        whiteboardId={whiteboardId}/>
+    )}
+    {activeDialog === 'collaborate' && (
+      <CollaborateDialog isOpen={activeDialog==='collaborate'}
+        onClose={closeDialog}
+        whiteboardId={whiteboardId}
+        currentUserEmail={currentUserEmail}/>
+    )}
     {activeDialog === 'settings' && <div className="dialog">Settings Dialog</div>}
-    {activeDialog && <div className="overlay" onClick={() => setActiveDialog(null)}></div>}
+    {/* {activeDialog && <div className="overlay" onClick={() => setActiveDialog(null)}></div>} */}
 
     </>
   );

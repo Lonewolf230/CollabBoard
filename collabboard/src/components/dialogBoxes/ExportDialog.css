@@ -11,6 +11,7 @@
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    
   }
   
   .export-dialog {
@@ -21,6 +22,7 @@
     max-width: 90vw;
     max-height: 90vh;
     overflow-y: auto;
+    scrollbar-width: none;
     display: flex;
     flex-direction: column;
   }

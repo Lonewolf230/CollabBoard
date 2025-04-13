@@ -24,14 +24,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, canvas }) 
     
     try {
       if (format === 'jpeg') {
-        // Export as JPEG
         const dataURL = canvas.toDataURL({
           format: 'jpeg',
           quality: quality,
           multiplier: 1
         });
         
-        // Create download link
         const link = document.createElement('a');
         link.href = dataURL;
         link.download = `${fileName}.jpg`;
