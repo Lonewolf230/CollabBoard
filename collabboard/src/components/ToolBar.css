@@ -56,7 +56,7 @@
   }
    */
 
-   .tool {
+   /* .tool {
     padding: 10px;
     cursor: pointer;
     transition: all 0.4s;
@@ -88,4 +88,219 @@
     border-top: 1px solid #eaeaea;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     z-index: 1000;
-}
+} */
+
+/* 
+.tool-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tool {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .tool:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .tool.active {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .tool-container {
+    position: relative;
+  }
+  
+  
+  .color-picker-popup {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 150px;
+  }
+  
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  
+  
+  .radius-slider-popup {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 150px;
+    text-align: center;
+  }
+  
+  .radius-value {
+    margin-top: 4px;
+    font-size: 14px;
+  }
+  
+  
+  .shapes-list-popup {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: white;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 120px;
+  }
+  
+  .shape-option {
+    border-radius: 4px;
+  }
+  
+  .shape-option:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .shape-option.active {
+    background-color: #e3f2fd;
+    color: #2196f3;
+  } */
+
+
+  .tool-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+  
+  .tool {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .tool:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .tool.active {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .tool-container {
+    position: relative;
+  }
+  
+  /* Color Picker Popup */
+  .color-picker-popup {
+    position: absolute;
+    top: -160px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 150px;
+  }
+  
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  
+  /* Radius Slider Popup */
+  .radius-slider-popup {
+    position: absolute;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 150px;
+    text-align: center;
+  }
+  
+  .radius-value {
+    margin-top: 4px;
+    font-size: 14px;
+  }
+  
+  /* Shapes List Popup */
+  .shapes-list-popup {
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background-color: white;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 120px;
+  }
+  
+  .shape-option {
+    border-radius: 4px;
+  }
+  
+  .shape-option:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .shape-option.active {
+    background-color: #e3f2fd;
+    color: #2196f3;
+  }

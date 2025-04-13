@@ -8,10 +8,11 @@ import {
   Share2, 
   Image, 
   LogOut,
-  Moon,
   Users
 } from 'lucide-react';
 import './Sidebar.css';
+import ExportDialog from './dialogBoxes/ExportDialog';
+import { useFabric } from '../context/FabricContext';
 
 interface SidebarProps {
   onLogout?: () => void;
@@ -19,13 +20,22 @@ interface SidebarProps {
 
 export default function Sidebar({ onLogout = () => console.log('Logout clicked') }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
+  const [activeDialog, setActiveDialog] = useState<string | null>(null);
+  const canvas=useFabric()
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const handleOptionClick=(dialogName:string)=>{
+    setActiveDialog(dialogName)
+  }
+
+  const closeDialog=()=>[
+    setActiveDialog(null)
+  ]
   return (
-    <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
+    <>
+  <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <div className="sidebar-header">
         {isExpanded && <h3>Options</h3>}
         <button className="toggle-btn" onClick={toggleSidebar}>
@@ -34,31 +44,28 @@ export default function Sidebar({ onLogout = () => console.log('Logout clicked')
       </div>
       
       <div className="sidebar-content">
-        <div className="sidebar-item">
+        <div className="sidebar-item" onClick={()=>handleOptionClick('newDocument')}>
           <FileText size={20} />
           {isExpanded && <span>New Document</span>}
         </div>
-        <div className="sidebar-item">
+        <div className="sidebar-item" onClick={()=>handleOptionClick('save')}>
           <Save size={20} />
           {isExpanded && <span>Save</span>}
         </div>
-        <div className="sidebar-item">
+        <div className="sidebar-item" onClick={()=>handleOptionClick('exportImage')}>
           <Image size={20} />
-          {isExpanded && <span>Export Image</span>}
+          {isExpanded && <span>Export Canvas</span>}
         </div>
-        <div className="sidebar-item">
+        <div className="sidebar-item" onClick={()=>handleOptionClick('share')}>
           <Share2 size={20} />
           {isExpanded && <span>Share</span>}
         </div>
-        <div className="sidebar-item">
+        <div className="sidebar-item" onClick={()=>handleOptionClick('collaborate')}>
           <Users size={20} />
           {isExpanded && <span>Collaborate</span>}
         </div>
-        <div className="sidebar-item">
-          <Moon size={20} />
-          {isExpanded && <span>Dark Mode</span>}
-        </div>
-        <div className="sidebar-item">
+
+        <div className="sidebar-item" onClick={()=>handleOptionClick('settings')}>
           <Settings size={20} />
           {isExpanded && <span>Settings</span>}
         </div>
@@ -71,5 +78,18 @@ export default function Sidebar({ onLogout = () => console.log('Logout clicked')
         </div>
       </div>
     </div>
+    {activeDialog === 'newDocument' && <div className="dialog">New Document Dialog</div>}
+    {activeDialog === 'save' && <div className="dialog">Save Dialog</div>}
+    {activeDialog === 'exportImage' && (
+      <ExportDialog isOpen={activeDialog === 'exportImage'}
+            onClose={closeDialog}
+            canvas={canvas}
+      />
+    )}
+    {activeDialog === 'collaborate' && <div className="dialog">Collaborate Dialog</div>}
+    {activeDialog === 'settings' && <div className="dialog">Settings Dialog</div>}
+    {activeDialog && <div className="overlay" onClick={() => setActiveDialog(null)}></div>}
+
+    </>
   );
 }

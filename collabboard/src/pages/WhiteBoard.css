@@ -1,4 +1,4 @@
-.whiteboard-container {
+/* .whiteboard-container {
     position: relative;
     width: 100%;
     height: 100vh;
@@ -9,15 +9,46 @@
   .whiteboard-content {
     position: absolute;
     top: 0;
-    left: 60px; /* Default collapsed sidebar width */
+    left: 60px; 
     right: 0;
-    bottom: 70px; /* Height of toolbar */
+    bottom: 70px; 
     transition: left 0.3s ease-in-out;
     background-color: white;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
   }
   
-  /* Adjust whiteboard content when sidebar is expanded */
   .sidebar.expanded ~ .whiteboard-content {
     left: 220px;
+  } */
+
+  .whiteboard-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .whiteboard-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Make sure the toolbar is visible and properly positioned */
+  .tool-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+  
+  /* Ensure sidebar is visible and properly positioned */
+  .sidebar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1000;
   }
