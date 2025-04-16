@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Brush } from 'lucide-react';
 import './AuthPage.css';
+import { auth } from '../utils/firebase';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
+import { useAuth } from '../providers/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthFormData {
   email: string;
@@ -15,9 +19,10 @@ const AuthPage: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    name: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const {createUser,loginUser}=useAuth()
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
@@ -26,7 +31,6 @@ const AuthPage: React.FC = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      name: '',
     });
   };
 
@@ -42,13 +46,20 @@ const AuthPage: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
     try {
-      // Here you would typically call your authentication API
-      console.log('Form submitted:', formData);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert(`${isLogin ? 'Login' : 'Signup'} successful!`);
+
+      if(!isLogin){
+        if(formData.password !== formData.confirmPassword){
+          alert('Passwords do not match!');
+          return;
+        }
+        await createUser(formData.email,formData.password)
+        navigate('/dashboard')
+      }
+      else{
+        await loginUser(formData.email,formData.password)
+        navigate('/dashboard')
+      }
     } catch (error) {
       console.error('Authentication error:', error);
       alert('Authentication failed. Please try again.');
@@ -77,20 +88,7 @@ const AuthPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-content">
-            {!isLogin && (
-              <div className="form-group">
-                <label htmlFor="name">Full Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter your full name"
-                  required={!isLogin}
-                />
-              </div>
-            )}
+    
             
             <div className="form-group">
               <label htmlFor="email">Email Address</label>

@@ -15,20 +15,23 @@ import ExportDialog from './dialogBoxes/ExportDialog';
 import { useFabric } from '../context/FabricContext';
 import ShareDialog from './dialogBoxes/ShareDialog';
 import CollaborateDialog from './dialogBoxes/CollaborateDialog';
+import { useAuth } from '../providers/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
-  onLogout?: () => void;
   whiteboardId?: string;
-  currentUserEmail?: string;
+  currentUserEmail?: string | undefined | null;
 }
 
 export default function Sidebar({ 
-      onLogout = () => console.log('Logout clicked'),
       whiteboardId='default',
       currentUserEmail='manish2306j@gmail.com' }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const canvas=useFabric()
+  const {logOut,user}=useAuth()
+  const navigate=useNavigate()
+
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
   };
@@ -40,11 +43,18 @@ export default function Sidebar({
   const closeDialog=()=>{
     setActiveDialog(null)
   }
+
+  const onLogout=async()=>{
+    console.log(user)
+    await logOut()
+    navigate('/')
+  }
+
   return (
     <>
   <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <div className="sidebar-header">
-        {isExpanded && <h3>Options</h3>}
+        {isExpanded && <h6>{currentUserEmail}</h6>}
         <button className="toggle-btn" onClick={toggleSidebar}>
           {isExpanded ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
         </button>
@@ -53,7 +63,7 @@ export default function Sidebar({
       <div className="sidebar-content">
         <div className="sidebar-item" onClick={()=>handleOptionClick('newDocument')}>
           <FileText size={20} />
-          {isExpanded && <span>New Document</span>}
+          {isExpanded && <span>New Whiteboard</span>}
         </div>
         <div className="sidebar-item" onClick={()=>handleOptionClick('save')}>
           <Save size={20} />

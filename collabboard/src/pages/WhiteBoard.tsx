@@ -5,11 +5,12 @@ import ToolBar from "../components/ToolBar";
 import FabricCanvas from "../components/FabricCanvas";
 import { FabricContext } from "../context/FabricContext";
 import "./WhiteBoard.css";
+import { useAuth } from "../providers/AuthProvider";
 
 export default function WhiteBoard() {
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-
+  const { user } = useAuth();
   // This effect runs when the canvas is initialized in FabricCanvas
   useEffect(() => {
     if (fabricCanvasRef.current && !canvas) {
@@ -20,7 +21,7 @@ export default function WhiteBoard() {
   return (
     <FabricContext.Provider value={canvas}>
       <div className="whiteboard-container">
-        <Sidebar />
+        <Sidebar currentUserEmail={user?.email}/>
         <main className="whiteboard-content">
           <FabricCanvas canvasRef={fabricCanvasRef} />
         </main>

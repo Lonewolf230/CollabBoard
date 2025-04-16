@@ -14,7 +14,7 @@ interface CollaborateDialogProps {
   onClose: () => void;
   whiteboardId?: string;
   // If you have a current user object, you could pass it here
-  currentUserEmail?: string;
+  currentUserEmail?: string | undefined | null;
 }
 
 const CollaborateDialog: React.FC<CollaborateDialogProps> = ({

@@ -126,13 +126,13 @@ const ShareDialog: React.FC<ShareDialogProps> = ({ isOpen, onClose, whiteboardId
               </button>
             </div>
             
-            <button 
+            {/* <button 
               className="regenerate-link-button" 
               onClick={regenerateLink}
               disabled={isGeneratingLink}
             >
               {isGeneratingLink ? 'Generating...' : 'Generate New Link'}
-            </button>
+            </button> */}
           </div>
           
          
