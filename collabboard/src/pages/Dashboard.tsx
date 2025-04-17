@@ -4,12 +4,14 @@ import {
   Plus, 
   Trash2, 
   LogOut,
-  Edit,
   Clock,
-  User
+  User,
+  Link
 } from 'lucide-react';
 import './Dashboard.css';
 import { useAuth } from '../providers/AuthProvider';
+import JoinBoard from '../components/dialogBoxes/JoinBoard';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Whiteboard {
   id: string;
@@ -22,6 +24,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user, logOut } = useAuth();
   const currentUser = user?.email || "User";
+  const [showJoinBoard, setShowJoinBoard] = useState(false);
   
   const [whiteboards] = useState<Whiteboard[]>([
     { id: '1', name: 'Project Brainstorm', createdAt: '2025-04-10T14:30:00', owner: currentUser },
@@ -37,17 +40,22 @@ export default function Dashboard() {
   ]);
 
   const handleCreateWhiteboard = () => {
-    navigate('/board');
+    const newBoardId = uuidv4();
+    navigate(`/board/${newBoardId}`);
   };
 
   const handleOpenWhiteboard = (id: string) => {
-    navigate(`/board`);
+    navigate(`/board/${id}`);
   };
 
   const handleDeleteWhiteboard = (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); 
     console.log(`Delete whiteboard ${id}`);
   };
+
+  const handleJoinWhiteboard = () => {
+    setShowJoinBoard(true)
+  }
 
   const onLogout = async () => {
     await logOut();
@@ -70,6 +78,10 @@ export default function Dashboard() {
           <div className="sidebar-item create-new" onClick={handleCreateWhiteboard}>
             <Plus size={20} />
             <span>New Whiteboard</span>
+          </div>
+          <div className="sidebar-item create-new" onClick={handleJoinWhiteboard}>
+            <Link size={20} />
+            <span>Join using Link</span>
           </div>
         </div>
         
@@ -116,16 +128,14 @@ export default function Dashboard() {
               >
                 <Trash2 size={18} />
               </button>
-              <button 
-                className="edit-button"
-                aria-label="Edit whiteboard"
-              >
-                <Edit size={18} />
-              </button>
             </div>
           ))}
         </div>
       </main>
+      {showJoinBoard && <JoinBoard onClose={() => setShowJoinBoard(false)} />}
+
     </div>
+
+    
   );
 }

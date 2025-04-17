@@ -74,7 +74,7 @@ export default function ToolBar() {
       case "highlighter":
         canvas.isDrawingMode = true;
         canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-        canvas.freeDrawingBrush.color = `${selectedColor}66`; // Add transparency
+        canvas.freeDrawingBrush.color = `${selectedColor}33`; // Add transparency
         canvas.freeDrawingBrush.width = 15;
         break;
   

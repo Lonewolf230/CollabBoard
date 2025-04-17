@@ -17,15 +17,15 @@ import ShareDialog from './dialogBoxes/ShareDialog';
 import CollaborateDialog from './dialogBoxes/CollaborateDialog';
 import { useAuth } from '../providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 interface SidebarProps {
   whiteboardId?: string;
   currentUserEmail?: string | undefined | null;
+  onSaveBoard?:()=>void;
 }
 
-export default function Sidebar({ 
-      whiteboardId='default',
-      currentUserEmail='manish2306j@gmail.com' }: SidebarProps) {
+export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const canvas=useFabric()
@@ -38,6 +38,11 @@ export default function Sidebar({
 
   const handleOptionClick=(dialogName:string)=>{
     setActiveDialog(dialogName)
+  }
+
+  const createNewBoard=() =>{
+    const newBoardId=uuidv4()
+    navigate(`/board/${newBoardId}`)
   }
 
   const closeDialog=()=>{
@@ -61,11 +66,11 @@ export default function Sidebar({
       </div>
       
       <div className="sidebar-content">
-        <div className="sidebar-item" onClick={()=>handleOptionClick('newDocument')}>
+        <div className="sidebar-item" onClick={()=>createNewBoard()}>
           <FileText size={20} />
           {isExpanded && <span>New Whiteboard</span>}
         </div>
-        <div className="sidebar-item" onClick={()=>handleOptionClick('save')}>
+        <div className="sidebar-item" onClick={()=>onSaveBoard?.()}>
           <Save size={20} />
           {isExpanded && <span>Save</span>}
         </div>
@@ -115,7 +120,6 @@ export default function Sidebar({
         currentUserEmail={currentUserEmail}/>
     )}
     {activeDialog === 'settings' && <div className="dialog">Settings Dialog</div>}
-    {/* {activeDialog && <div className="overlay" onClick={() => setActiveDialog(null)}></div>} */}
 
     </>
   );

@@ -5,6 +5,7 @@ import WhiteBoard from './pages/WhiteBoard'
 import AuthProvider from './providers/AuthProvider'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './utils/ProtectedRoute'
+import Error from './components/Error'
 
 function App() {
 
@@ -21,11 +22,14 @@ function App() {
                   <Dashboard/>
                 </ProtectedRoute>
               }/>
-            <Route path='/board' element={
+            <Route path='/board' element={<Error message={'Sorry but the whiteboard does not exist'}/>}/>  
+            <Route path='/board/:boardId' element={
                 <ProtectedRoute>
                   <WhiteBoard/>
                 </ProtectedRoute>
-              }/>
+              }
+              errorElement={<Error message={'Sorry but the whiteboard does not exist'}/>}
+              />
           </Routes>
         </Router>
       </AuthProvider>

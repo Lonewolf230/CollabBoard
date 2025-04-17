@@ -4,17 +4,19 @@ import {
     signOut, 
     onAuthStateChanged, 
     User, 
-    UserCredential 
+    UserCredential ,
+    signInWithPopup
   } from 'firebase/auth';
-  import { auth } from '../utils/firebase.ts';
+  import { auth,provider } from '../utils/firebase.ts';
   import React, { createContext, useContext, useEffect, useState } from 'react';
   
   export interface AuthContextType {
-    createUser: (email: string, password: string) => Promise<UserCredential>;
-    loginUser: (email: string, password: string) => Promise<UserCredential>;
-    logOut: () => Promise<void>;
-    user: User | null;
-    loading: boolean;
+    createUser: (email: string, password: string) => Promise<UserCredential>
+    loginUser: (email: string, password: string) => Promise<UserCredential>
+    googleLogin:()=>Promise<UserCredential>
+    logOut: () => Promise<void>
+    user: User | null
+    loading: boolean
   }
   
   export const AuthContext = createContext<AuthContextType>({
@@ -22,6 +24,9 @@ import {
       throw new Error('AuthContext not initialized');
     },
     loginUser: async () => {
+      throw new Error('AuthContext not initialized');
+    },
+    googleLogin:async()=>{
       throw new Error('AuthContext not initialized');
     },
     logOut: async () => {
@@ -52,6 +57,11 @@ import {
       setLoading(true);
       return signInWithEmailAndPassword(auth, email, password);
     };
+
+    const googleLogin=async():Promise<UserCredential>=>{
+      setLoading(true)
+      return signInWithPopup(auth,provider)
+    }
   
     const logOut = async (): Promise<void> => {
       setLoading(true);
@@ -70,6 +80,7 @@ import {
     const authValue: AuthContextType = {
       createUser,
       loginUser,
+      googleLogin,
       logOut,
       user,
       loading

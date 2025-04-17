@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as fabric from "fabric";
+import { v4 as uuidv4 } from "uuid";
+import { useParams } from "react-router-dom";
 
 type Props = {
   canvasRef: React.MutableRefObject<fabric.Canvas | null>;
@@ -13,8 +15,8 @@ export default function FabricCanvas({ canvasRef }: Props) {
 
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "white",
-      width: window.innerWidth+1500,
-      height: window.innerHeight + 1080,
+      width: window.innerWidth+100,
+      height: window.innerHeight + 100,
     })
 
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);

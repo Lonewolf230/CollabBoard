@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Brush } from 'lucide-react';
 import './AuthPage.css';
 import { auth } from '../utils/firebase';
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
 import { useAuth } from '../providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,7 +21,7 @@ const AuthPage: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const {createUser,loginUser}=useAuth()
+  const {createUser,loginUser,user,googleLogin}=useAuth()
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
@@ -68,11 +67,18 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin =async () => {
     // Here you would implement Google OAuth
-    console.log('Google login initiated');
-    alert('Google login functionality would be implemented here');
+    await googleLogin()
+    navigate('/dashboard')
+
   };
+
+  useEffect(()=>{
+    if(user){
+      navigate('/dashboard')
+    }
+  },[user,navigate])
 
   return (
     <div className="auth-container">
