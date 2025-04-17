@@ -1,33 +1,33 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
-import { v4 as uuidv4 } from "uuid";
-import { useParams } from "react-router-dom";
 
 type Props = {
   canvasRef: React.MutableRefObject<fabric.Canvas | null>;
+  initialCanvasState?: string;
 };
 
-export default function FabricCanvas({ canvasRef }: Props) {
+export default function FabricCanvas({ canvasRef, initialCanvasState }: Props) {
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isCanvasLoaded, setIsCanvasLoaded] = useState(false);
 
   useEffect(() => {
     if (!htmlCanvasRef.current) return;
 
+    console.log("Initializing new canvas");
     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
       backgroundColor: "white",
-      width: window.innerWidth+100,
+      width: window.innerWidth + 100,
       height: window.innerHeight + 100,
-    })
+    });
 
     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
     canvas.freeDrawingBrush.color = "black";
     canvas.freeDrawingBrush.width = 3;
     canvas.isDrawingMode = true;
-
-    canvas.renderAll();
+    
     canvasRef.current = canvas;
+    setIsCanvasLoaded(true);
 
-    // Handle window resize
     const handleResize = () => {
       canvas.setDimensions({
         width: window.innerWidth,
@@ -42,9 +42,38 @@ export default function FabricCanvas({ canvasRef }: Props) {
       canvas.dispose();
       window.removeEventListener('resize', handleResize);
     };
-  }, [canvasRef]);
+  }, []);  
 
-  return <div style={{overflow:"scroll"}}>
-    <canvas ref={htmlCanvasRef}></canvas>
-  </div>;
+  useEffect(() => {
+    if (!isCanvasLoaded || !canvasRef.current || !initialCanvasState) return;
+    
+    console.log("Loading initial canvas state:", typeof initialCanvasState);
+    
+    try {
+      const canvasState = typeof initialCanvasState === 'string' 
+        ? JSON.parse(initialCanvasState) 
+        : initialCanvasState;
+      
+      canvasRef.current.loadFromJSON(canvasState, () => {
+        console.log("Canvas state loaded successfully");
+        canvasRef.current?.renderAll();
+        
+        setTimeout(() => {
+          canvasRef.current?.renderAll();
+        }, 50);
+        setTimeout(() => {
+          canvasRef.current?.renderAll();
+        }, 200);
+      });
+    } catch (error) {
+      console.error("Error loading canvas state:", error);
+      console.error("State content:", initialCanvasState);
+    }
+  }, [isCanvasLoaded, initialCanvasState]);
+
+  return (
+    <div style={{overflow: "scroll"}}>
+      <canvas ref={htmlCanvasRef}></canvas>
+    </div>
+  );
 }

@@ -24,7 +24,6 @@ export default function WhiteBoard() {
   const {boardId}=useParams<{boardId:string}>()
 
   const socket=io('http://localhost:3000')
-  // This effect runs when the canvas is initialized in FabricCanvas
   useEffect(() => {
     if (fabricCanvasRef.current && !canvas) {
       setCanvas(fabricCanvasRef.current);
@@ -51,54 +50,48 @@ export default function WhiteBoard() {
     }
   },[])
 
-  useEffect(()=>{
-
-    async function checkAndCreateBoard(){
-      if(!boardId || !user){
-        setLoading(false)
-        setError('Board ID or user is not defined')
-        return
-      }
-      setLoading(true)
-      setError(null)
-      try {
-        const boardRef=doc(firestore,'boards',boardId)
-
-        const boardSnap=await getDoc(boardRef)
-
-        if(boardSnap.exists()){
-          const data=boardSnap.data()
-          setBoardData(data)
-          console.log('Board data:',data);
-
-          const isOwner=data.ownerName===user.email
-          const additionalUser=data.additionalUsers?.find(
-            (u:{username:string,access:string})=>u.username===user.email
-          )
-          if(!isOwner && !additionalUser){
-            setError('You do not have access to this board')
-            setLoading(false)
-            return
-          }
-          else{
-            if(canvas && data.canvasState){
-              canvas.loadFromJSON(data.canvasState,canvas.renderAll.bind(canvas))
-            }
-          }
-        }
-        else{
-          setShowNamePrompt(true)
-        }
-      } catch (error) {
-        console.error('Error fetching board:',error);
-        setError('Failed to create or fetch board')
-      }
-      finally{
-        setLoading(false)
-      }
+useEffect(() => {
+  async function checkAndCreateBoard() {
+    if (!boardId || !user) {
+      setLoading(false);
+      setError('Board ID or user is not defined');
+      return;
     }
-    checkAndCreateBoard()
-  },[boardId,user,canvas])
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const boardRef = doc(firestore, 'boards', boardId);
+      const boardSnap = await getDoc(boardRef);
+
+      if (boardSnap.exists()) {
+        const data = boardSnap.data();
+        console.log('Board data loaded:', data);
+
+        const isOwner = data.ownerName === user.email;
+        const additionalUser = data.additionalUsers?.find(
+          (u: {username: string, access: string}) => u.username === user.email
+        );
+        
+        if (!isOwner && !additionalUser) {
+          setError('You do not have access to this board');
+        } else {
+          setBoardData(data);
+        }
+      } else {
+        setShowNamePrompt(true);
+      }
+    } catch (error) {
+      console.error('Error fetching board:', error);
+      setError('Failed to create or fetch board');
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  checkAndCreateBoard();
+}, [boardId, user]); 
 
   const saveCanvasState=async()=>{
     if(!canvas || !boardId || !user) return
@@ -161,7 +154,9 @@ export default function WhiteBoard() {
             onSaveBoard={saveCanvasState}
             />
           <main className="whiteboard-content">
-            <FabricCanvas canvasRef={fabricCanvasRef} />
+            <FabricCanvas 
+                canvasRef={fabricCanvasRef}
+                initialCanvasState={boardData?.canvasState || undefined} />
           </main>
           <ToolBar />
         </div>

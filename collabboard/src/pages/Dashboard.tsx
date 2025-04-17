@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Trash2, 
   LogOut,
-  Clock,
   User,
   Link
 } from 'lucide-react';
@@ -12,12 +11,18 @@ import './Dashboard.css';
 import { useAuth } from '../providers/AuthProvider';
 import JoinBoard from '../components/dialogBoxes/JoinBoard';
 import { v4 as uuidv4 } from 'uuid';
+import { firestore  } from '../utils/firebase';
+import { collection, getDocs, query, Timestamp, where,doc, deleteDoc } from 'firebase/firestore';
+import Loader from '../components/Loader';
 
 interface Whiteboard {
-  id: string;
-  name: string;
+  boardId: string;
+  canvasState: string;
   createdAt: string;
-  owner: string;
+  ownerName: string;
+  boardName: string;
+  lastUpdatedAt: string;
+  additionalUsers: string[];
 }
 
 export default function Dashboard() {
@@ -25,19 +30,86 @@ export default function Dashboard() {
   const { user, logOut } = useAuth();
   const currentUser = user?.email || "User";
   const [showJoinBoard, setShowJoinBoard] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [whiteboards, setWhiteboards] = useState<Whiteboard[]>([]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchWhiteboards=async()=>{
+      if(!user){
+        console.error('User not found');
+        return
+      }
+      const email=user.email
+      setError(null);
+      try {
+        const ownerSearch=query(
+          collection(firestore,'boards'),
+          where('ownerName','==',email)
+        )
+
+        const ownerSnapshots=await getDocs(ownerSearch)
+
+        const allBoardsQuery=query(collection(firestore,'boards'))
+        const allBoardsSnapshots=await getDocs(allBoardsQuery)
+
+        const boards:Whiteboard[]=[]
+
+        ownerSnapshots.forEach((doc)=>{
+          const data=doc.data()
+          boards.push({
+            boardId:doc.id,
+            canvasState:data.canvasState,
+            createdAt:data.createdAt,
+            ownerName:data.ownerName,
+            boardName:data.boardName,
+            lastUpdatedAt:data.lastUpdatedAt,
+            additionalUsers:data.additionalUsers
+          })
+        })
+
+        allBoardsSnapshots.forEach((doc)=>{
+          if(boards.some(board=>board.boardId===doc.id)){
+            return
+          }
+          const data=doc.data()
+          const additionalUsers=data.additionalUsers || []
+          const userHasAccess=additionalUsers.some(
+            (user:{username:string,access:string})=>user.username===email
+          )
+          if(userHasAccess){
+            boards.push({
+              boardId:doc.id,
+              canvasState:data.canvasState,
+              createdAt:data.createdAt,
+              ownerName:data.ownerName,
+              lastUpdatedAt:data.lastUpdatedAt,
+              boardName:data.boardName,
+              additionalUsers:data.additionalUsers
+            })
+          }
+        })
+
+        boards.sort((a,b)=>{
+          const dateA=a.createdAt? new Date(a.createdAt):new Date(0)
+          const dateB=b.createdAt? new Date(b.createdAt):new Date(0)
+          return dateB.getTime()-dateA.getTime()
+        })
+
+        setWhiteboards(boards)
+      } catch (error) {
+        console.error('Error fetching whiteboards:',error);
+        setError('Failed to fetch whiteboards')
+      }
+      finally{
+        setIsLoading(false)
+      }
+    }
+    fetchWhiteboards()
+  },[user])
   
-  const [whiteboards] = useState<Whiteboard[]>([
-    { id: '1', name: 'Project Brainstorm', createdAt: '2025-04-10T14:30:00', owner: currentUser },
-    { id: '2', name: 'Weekly Team Meeting', createdAt: '2025-04-12T09:15:00', owner: currentUser },
-    { id: '3', name: 'Product Roadmap', createdAt: '2025-04-13T16:45:00', owner: currentUser },
-    { id: '4', name: 'UI/UX Design Ideas', createdAt: '2025-04-14T11:20:00', owner: currentUser },
-    { id: '5', name: 'Sprint Planning', createdAt: '2025-04-14T13:00:00', owner: currentUser },
-    { id: '6', name: 'Client Presentation', createdAt: '2025-04-15T10:30:00', owner: currentUser },
-    { id: '7', name: 'Research Notes', createdAt: '2025-04-15T14:45:00', owner: currentUser },
-    { id: '8', name: 'Feature Planning', createdAt: '2025-04-16T09:00:00', owner: currentUser },
-    { id: '9', name: 'Competitor Analysis', createdAt: '2025-04-16T11:30:00', owner: currentUser },
-    { id: '10', name: 'Marketing Strategy', createdAt: '2025-04-16T15:20:00', owner: currentUser },
-  ]);
+
 
   const handleCreateWhiteboard = () => {
     const newBoardId = uuidv4();
@@ -48,8 +120,27 @@ export default function Dashboard() {
     navigate(`/board/${id}`);
   };
 
-  const handleDeleteWhiteboard = (id: string, e: React.MouseEvent) => {
+  const handleDeleteWhiteboard = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); 
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this whiteboard?");
+    if (!confirmDelete) return;
+
+    try{
+      setIsLoading(true)
+      const boardRef=doc(firestore,'boards',id)
+      await deleteDoc(boardRef)
+      const updatedWhiteboards=whiteboards.filter(board=>board.boardId!==id)
+      setWhiteboards(updatedWhiteboards)
+    }
+    catch(error){
+      console.error('Error deleting whiteboard:',error);
+      setError('Failed to delete whiteboard')
+    }
+    finally{
+      setIsLoading(false)
+    }
+
     console.log(`Delete whiteboard ${id}`);
   };
 
@@ -62,10 +153,19 @@ export default function Dashboard() {
     navigate('/');
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatDate = (dateInput: any) => {
+    const date = typeof dateInput?.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
+  
+    return date.toLocaleString('en-US', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }).replace(',', ' at');
   };
+  
 
   return (
     <div className="dashboard-container">
@@ -93,45 +193,54 @@ export default function Dashboard() {
         </div>
       </div>
       
-      <main className="dashboard-content">
-        <div className="dashboard-header">
-          <h1>My Whiteboards</h1>
-        </div>
-        
-        <div className="whiteboard-grid">
-          {whiteboards.map(whiteboard => (
-            <div 
-              key={whiteboard.id} 
-              className="whiteboard-card"
-              onClick={() => handleOpenWhiteboard(whiteboard.id)}
-            >
-              <div className="whiteboard-preview">
-                {/* In a real app, this could be a thumbnail preview of the whiteboard */}
-              </div>
-              <div className="whiteboard-details">
-                <h3>{whiteboard.name}</h3>
-                <div className="whiteboard-meta">
-                  <div className="meta-item">
-                    <Clock size={14} />
-                    <span>{formatDate(whiteboard.createdAt)}</span>
-                  </div>
-                  <div className="meta-item">
-                    <User size={14} />
-                    <span>{whiteboard.owner}</span>
+      {isLoading?(
+        <Loader/>
+      ):(
+          <main className="dashboard-content">
+          <div className="dashboard-header">
+            <h1>My Whiteboards</h1>
+          </div>
+          
+          <div className="whiteboard-grid">
+            {whiteboards.map(whiteboard => (
+              <div 
+                key={whiteboard.boardId} 
+                className="whiteboard-card"
+                onClick={() => handleOpenWhiteboard(whiteboard.boardId)}
+              >
+                <div className="whiteboard-preview">
+                  {/* In a real app, this could be a thumbnail preview of the whiteboard */}
+                </div>
+                <div className="whiteboard-details">
+                  <h3>{whiteboard.boardName}</h3>
+                  <div className="whiteboard-meta">
+                    <div className="meta-item">
+                      <b>Created At : </b>
+                      <span>{formatDate(whiteboard.createdAt)}</span>
+                    </div>
+                    <div className="meta-item">
+                      <b>Last Updated on : </b>
+                      <span> {formatDate(whiteboard.lastUpdatedAt)}</span>
+                    </div>
+                    <div className="meta-item">
+                      <User size={14} />
+                      <span>{whiteboard.ownerName}</span>
+                    </div>
                   </div>
                 </div>
+                <button 
+                  className="delete-button"
+                  onClick={(e) => handleDeleteWhiteboard(whiteboard.boardId, e)}
+                  aria-label="Delete whiteboard"
+                >
+                  <Trash2 size={18} />
+                </button>
               </div>
-              <button 
-                className="delete-button"
-                onClick={(e) => handleDeleteWhiteboard(whiteboard.id, e)}
-                aria-label="Delete whiteboard"
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </main>
+            ))}
+          </div>
+        </main>
+      )}
+
       {showJoinBoard && <JoinBoard onClose={() => setShowJoinBoard(false)} />}
 
     </div>
