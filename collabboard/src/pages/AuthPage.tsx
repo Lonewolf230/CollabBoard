@@ -21,7 +21,7 @@ const AuthPage: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const {createUser,loginUser,user,googleLogin}=useAuth()
+  const {createUser,loginUser,user,googleLogin,changePassword}=useAuth()
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
@@ -68,11 +68,24 @@ const AuthPage: React.FC = () => {
   };
 
   const handleGoogleLogin =async () => {
-    // Here you would implement Google OAuth
     await googleLogin()
     navigate('/dashboard')
 
   };
+
+  const handlePasswordChange = async () => {
+    if(!formData.email){
+      alert('Please enter your email address to reset password!')
+      return
+    }
+    try {
+      await changePassword(formData.email)
+      alert('Password reset email sent!')
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      alert('Failed to send password reset email. Please try again.');
+    }
+  }
 
   useEffect(()=>{
     if(user){
@@ -139,7 +152,7 @@ const AuthPage: React.FC = () => {
             
             {isLogin && (
               <div className="forgot-password">
-                <a href="#reset">Forgot password?</a>
+                <a href="#reset" onClick={handlePasswordChange}>Forgot password?</a>
               </div>
             )}
           </div>

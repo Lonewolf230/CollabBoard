@@ -5,7 +5,8 @@ import {
     onAuthStateChanged, 
     User, 
     UserCredential ,
-    signInWithPopup
+    signInWithPopup,
+    sendPasswordResetEmail
   } from 'firebase/auth';
   import { auth,provider } from '../utils/firebase.ts';
   import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ import {
     createUser: (email: string, password: string) => Promise<UserCredential>
     loginUser: (email: string, password: string) => Promise<UserCredential>
     googleLogin:()=>Promise<UserCredential>
+    changePassword:(email:string)=>Promise<void>
     logOut: () => Promise<void>
     user: User | null
     loading: boolean
@@ -27,6 +29,9 @@ import {
       throw new Error('AuthContext not initialized');
     },
     googleLogin:async()=>{
+      throw new Error('AuthContext not initialized');
+    },
+    changePassword:async(email:string)=>{
       throw new Error('AuthContext not initialized');
     },
     logOut: async () => {
@@ -62,6 +67,11 @@ import {
       setLoading(true)
       return signInWithPopup(auth,provider)
     }
+
+    const changePassword=async(email:string):Promise<void>=>{
+      setLoading(true)
+      return sendPasswordResetEmail(auth,email)
+    }
   
     const logOut = async (): Promise<void> => {
       setLoading(true);
@@ -82,6 +92,7 @@ import {
       loginUser,
       googleLogin,
       logOut,
+      changePassword,
       user,
       loading
     };
