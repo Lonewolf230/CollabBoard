@@ -1,12 +1,14 @@
+
 import { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 
 type Props = {
   canvasRef: React.MutableRefObject<fabric.Canvas | null>;
   initialCanvasState?: string;
+  hasEditAccess?: boolean;
 };
 
-export default function FabricCanvas({ canvasRef, initialCanvasState }: Props) {
+export default function FabricCanvas({ canvasRef, initialCanvasState,hasEditAccess }: Props) {
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isCanvasLoaded, setIsCanvasLoaded] = useState(false);
 
@@ -18,12 +20,21 @@ export default function FabricCanvas({ canvasRef, initialCanvasState }: Props) {
       backgroundColor: "white",
       width: window.innerWidth + 100,
       height: window.innerHeight + 100,
+      selection:hasEditAccess,
+      
     });
 
-    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-    canvas.freeDrawingBrush.color = "black";
-    canvas.freeDrawingBrush.width = 3;
-    canvas.isDrawingMode = true;
+    if (hasEditAccess) {
+      canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+      canvas.freeDrawingBrush.color = "black";
+      canvas.freeDrawingBrush.width = 3;
+      canvas.isDrawingMode = true;
+    } else {
+      canvas.selection = false;
+      canvas.hoverCursor = 'default';
+      canvas.defaultCursor = 'default';
+      canvas.isDrawingMode = false;
+    }
     
     canvasRef.current = canvas;
     setIsCanvasLoaded(true);
@@ -64,6 +75,14 @@ export default function FabricCanvas({ canvasRef, initialCanvasState }: Props) {
         setTimeout(() => {
           canvasRef.current?.renderAll();
         }, 200);
+        if (!hasEditAccess && canvasRef.current) {
+          canvasRef.current.getObjects().forEach(obj => {
+            obj.selectable = false;
+            obj.evented = false;
+          });
+          canvasRef.current.selection = false;
+          canvasRef.current.renderAll();
+        }
       });
     } catch (error) {
       console.error("Error loading canvas state:", error);

@@ -5,14 +5,15 @@ import {
   Trash2, 
   LogOut,
   User,
-  Link
+  Link,
+  BellRing
 } from 'lucide-react';
 import './Dashboard.css';
 import { useAuth } from '../providers/AuthProvider';
 import JoinBoard from '../components/dialogBoxes/JoinBoard';
 import { v4 as uuidv4 } from 'uuid';
 import { firestore  } from '../utils/firebase';
-import { collection, getDocs, query, Timestamp, where,doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, Timestamp, where,doc, deleteDoc, getDoc } from 'firebase/firestore';
 import Loader from '../components/Loader';
 
 interface Whiteboard {
@@ -123,6 +124,16 @@ export default function Dashboard() {
   const handleDeleteWhiteboard = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); 
 
+    const boardRef=doc(firestore,'boards',id)
+    const boardSnap=await getDoc(boardRef)
+
+    const data=boardSnap.data()
+
+    if(data?.ownerName!==user?.email){
+      window.alert('Only board owner can delete this board')
+      return
+    }
+
     const confirmDelete = window.confirm("Are you sure you want to delete this whiteboard?");
     if (!confirmDelete) return;
 
@@ -152,6 +163,9 @@ export default function Dashboard() {
     await logOut();
     navigate('/');
   };
+
+  const openRequests=()=>{}
+
 
   const formatDate = (dateInput: any) => {
     const date = typeof dateInput?.toDate === 'function' ? dateInput.toDate() : new Date(dateInput);
@@ -183,6 +197,10 @@ export default function Dashboard() {
             <Link size={20} />
             <span>Join using Link</span>
           </div>
+          <div className="sidebar-item create-new" onClick={openRequests}>
+            <BellRing size={20} />
+            <span>Access Requests</span>
+          </div>
         </div>
         
         <div className="sidebar-footer">
@@ -200,44 +218,53 @@ export default function Dashboard() {
           <div className="dashboard-header">
             <h1>My Whiteboards</h1>
           </div>
-          
-          <div className="whiteboard-grid">
-            {whiteboards.map(whiteboard => (
-              <div 
-                key={whiteboard.boardId} 
-                className="whiteboard-card"
-                onClick={() => handleOpenWhiteboard(whiteboard.boardId)}
-              >
-                <div className="whiteboard-preview">
-                  {/* In a real app, this could be a thumbnail preview of the whiteboard */}
-                </div>
-                <div className="whiteboard-details">
-                  <h3>{whiteboard.boardName}</h3>
-                  <div className="whiteboard-meta">
-                    <div className="meta-item">
-                      <b>Created At : </b>
-                      <span>{formatDate(whiteboard.createdAt)}</span>
+
+          {whiteboards.length==0 ? (
+            <div className="no-whiteboards">
+              <h2>No Whiteboards Found</h2>
+              <p>Click the button on the left to create a new whiteboard.</p>
+            </div>
+          ):(
+            <div className="whiteboard-grid">
+                {whiteboards.map(whiteboard => (
+                  <div 
+                    key={whiteboard.boardId} 
+                    className="whiteboard-card"
+                    onClick={() => handleOpenWhiteboard(whiteboard.boardId)}
+                  >
+                    <div className="whiteboard-preview">
+                      {/* In a real app, this could be a thumbnail preview of the whiteboard */}
                     </div>
-                    <div className="meta-item">
-                      <b>Last Updated on : </b>
-                      <span> {formatDate(whiteboard.lastUpdatedAt)}</span>
+                    <div className="whiteboard-details">
+                      <h3>{whiteboard.boardName}</h3>
+                      <div className="whiteboard-meta">
+                        <div className="meta-item">
+                          <b>Created At : </b>
+                          <span>{formatDate(whiteboard.createdAt)}</span>
+                        </div>
+                        <div className="meta-item">
+                          <b>Last Updated on : </b>
+                          <span> {formatDate(whiteboard.lastUpdatedAt)}</span>
+                        </div>
+                        <div className="meta-item">
+                          <User size={14} />
+                          <span>{whiteboard.ownerName}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="meta-item">
-                      <User size={14} />
-                      <span>{whiteboard.ownerName}</span>
-                    </div>
+                    <button 
+                      className="delete-button"
+                      onClick={(e) => handleDeleteWhiteboard(whiteboard.boardId, e)}
+                      aria-label="Delete whiteboard"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
-                </div>
-                <button 
-                  className="delete-button"
-                  onClick={(e) => handleDeleteWhiteboard(whiteboard.boardId, e)}
-                  aria-label="Delete whiteboard"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
+                ))}
+            </div>
+          )}
+          
+
         </main>
       )}
 

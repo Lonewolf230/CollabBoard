@@ -225,3 +225,39 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
   }
+
+.no-whiteboards{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 1.2rem;
+    color: #999;
+  }
+  
+  .no-whiteboards svg {
+    margin-right: 8px;
+  }
+  
+  .no-whiteboards p {
+    margin-left: 20px;
+    font-weight: 500;
+  }
+  
+  .loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .loading-spinner svg {
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }

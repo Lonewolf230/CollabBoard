@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import * as fabric from "fabric";
 import Sidebar from "../components/Sidebar";
@@ -20,35 +21,36 @@ export default function WhiteBoard() {
   const [boardData, setBoardData] = useState<any>(null);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasEditAccess, setHasEditAccess] = useState(false);
   const { user } = useAuth();
   const {boardId}=useParams<{boardId:string}>()
 
-  const socket=io('http://localhost:3000')
+  // const socket=io('http://localhost:3000')
   useEffect(() => {
     if (fabricCanvasRef.current && !canvas) {
       setCanvas(fabricCanvasRef.current);
     }
   }, [canvas, fabricCanvasRef.current]);
 
-  useEffect(()=>{
-    socket.on('connect',()=>{
-      console.log('Connected to server:',socket.id);
+  // useEffect(()=>{
+  //   socket.on('connect',()=>{
+  //     console.log('Connected to server:',socket.id);
       
-    })
+  //   })
 
-    socket.on('welcome',(message)=>{
-      console.log('Server says :',message);
-    })
+  //   socket.on('welcome',(message)=>{
+  //     console.log('Server says :',message);
+  //   })
 
-    socket.on('disconnect',()=>{
-      console.log('Disconnected from server');
-    })
-    return ()=>{
-      socket.off('connect');
-      socket.off('welcome');
-      socket.off('disconnect');
-    }
-  },[])
+  //   socket.on('disconnect',()=>{
+  //     console.log('Disconnected from server');
+  //   })
+  //   return ()=>{
+  //     socket.off('connect');
+  //     socket.off('welcome');
+  //     socket.off('disconnect');
+  //   }
+  // },[])
 
 useEffect(() => {
   async function checkAndCreateBoard() {
@@ -77,6 +79,14 @@ useEffect(() => {
         if (!isOwner && !additionalUser) {
           setError('You do not have access to this board');
         } else {
+          if (isOwner) {
+            setHasEditAccess(true);
+          } else if (additionalUser) {
+            setHasEditAccess(additionalUser.access === 'edit');
+          }
+          else{
+            setHasEditAccess(false)
+          }
           setBoardData(data);
         }
       } else {
@@ -152,13 +162,15 @@ useEffect(() => {
             currentUserEmail={user?.email} 
             whiteboardId={boardId}
             onSaveBoard={saveCanvasState}
+            hasEditAccess={hasEditAccess}
             />
           <main className="whiteboard-content">
             <FabricCanvas 
                 canvasRef={fabricCanvasRef}
-                initialCanvasState={boardData?.canvasState || undefined} />
+                initialCanvasState={boardData?.canvasState || undefined}
+                hasEditAccess={hasEditAccess} />
           </main>
-          <ToolBar />
+          {hasEditAccess && <ToolBar/>}
         </div>
       </FabricContext.Provider>
     </>
