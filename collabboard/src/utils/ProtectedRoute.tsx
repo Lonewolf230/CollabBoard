@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate,useLocation,useSearchParams } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import './styles.css'
 import Loader from "../components/Loader";
@@ -9,11 +9,13 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const {user,loading}=useAuth()
+    const location=useLocation()
+    const [searchParams]=useSearchParams()
     if(loading){
         return <div className="loading-container"><Loader /></div>
     } 
     if (!user) {
-        return <Navigate to="/" />;
+        return <Navigate to="/" state={{from:location}} />;
     }
     return <>{children}</>;
 

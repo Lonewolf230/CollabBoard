@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Brush } from 'lucide-react';
 import './AuthPage.css';
-import { auth } from '../utils/firebase';
 import { useAuth } from '../providers/AuthProvider';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 
 interface AuthFormData {
   email: string;
@@ -22,6 +21,8 @@ const AuthPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const {createUser,loginUser,user,googleLogin,changePassword}=useAuth()
+  const location=useLocation()
+  const from=location.state?.from?.pathname || '/dashboard'
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
@@ -44,7 +45,7 @@ const AuthPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+    console.log('From: ',from)
     try {
 
       if(!isLogin){
@@ -53,11 +54,11 @@ const AuthPage: React.FC = () => {
           return;
         }
         await createUser(formData.email,formData.password)
-        navigate('/dashboard')
+        navigate(from)
       }
       else{
         await loginUser(formData.email,formData.password)
-        navigate('/dashboard')
+        navigate(from)
       }
     } catch (error) {
       console.error('Authentication error:', error);
@@ -69,7 +70,7 @@ const AuthPage: React.FC = () => {
 
   const handleGoogleLogin =async () => {
     await googleLogin()
-    navigate('/dashboard')
+    navigate(from)
 
   };
 
@@ -89,7 +90,7 @@ const AuthPage: React.FC = () => {
 
   useEffect(()=>{
     if(user){
-      navigate('/dashboard')
+      navigate(from)
     }
   },[user,navigate])
 

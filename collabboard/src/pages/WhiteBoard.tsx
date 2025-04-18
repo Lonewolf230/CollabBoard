@@ -9,7 +9,7 @@ import { FabricContext } from "../context/FabricContext";
 import "./WhiteBoard.css";
 import { useAuth } from "../providers/AuthProvider";
 import { io } from "socket.io-client";
-import { useParams } from "react-router-dom";
+import { useParams,useSearchParams } from "react-router-dom";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firestore } from "../utils/firebase";
 
@@ -24,6 +24,7 @@ export default function WhiteBoard() {
   const [hasEditAccess, setHasEditAccess] = useState(false);
   const { user } = useAuth();
   const {boardId}=useParams<{boardId:string}>()
+  const [searchParams]=useSearchParams()
 
   useEffect(() => {
     if (fabricCanvasRef.current && !canvas) {
@@ -34,10 +35,20 @@ export default function WhiteBoard() {
 
 useEffect(() => {
   async function checkAndCreateBoard() {
+    console.log('Search params: ',searchParams.get('shared'));
+    
     if (!boardId || !user) {
       setLoading(false);
       setError('Board ID or user is not defined');
       return;
+    }
+
+    const sharedEmail= searchParams.get('shared')
+    if(sharedEmail!=null && sharedEmail!==user.email){
+      console.error('Fishy');
+      
+      setError('You do not have access to this board')
+      return
     }
     
     setLoading(true);
