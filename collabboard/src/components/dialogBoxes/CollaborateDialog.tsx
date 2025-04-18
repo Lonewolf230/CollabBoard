@@ -1,45 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Send, X, Edit, Eye, Check } from 'lucide-react';
 import './CollaborateDialog.css';
+import emailjs from '@emailjs/browser';
+import { useAuth } from '../../providers/AuthProvider';
+import { arrayUnion, doc,getDoc,updateDoc,arrayRemove } from 'firebase/firestore';
+import { firestore } from '../../utils/firebase';
 
 interface User {
-  id: string;
   email: string;
   access: 'view' | 'edit';
   invited: boolean;
+  status?: 'pending' | 'sent' ;
 }
 
 interface CollaborateDialogProps {
   isOpen: boolean;
   onClose: () => void;
   whiteboardId?: string;
-  // If you have a current user object, you could pass it here
-  currentUserEmail?: string | undefined | null;
+  whiteboardName?:string
 }
 
 const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
   isOpen,
   onClose,
-  whiteboardId = 'demo-board',
-  currentUserEmail = 'you@example.com'
+  whiteboardId ,
+  whiteboardName
 }) => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);
   const [selectedAccess, setSelectedAccess] = useState<'view' | 'edit'>('view');
   const [users, setUsers] = useState<User[]>([
-    // Mock existing collaborators - replace with actual data from your backend
-    { id: '1', email: 'alice@example.com', access: 'edit', invited: true },
-    { id: '2', email: 'bob@example.com', access: 'view', invited: true }
+
   ]);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSendingStatus, setEmailSendingStatus] = useState<{
+    success: string[];
+    failed: string[];
+  }>({success:[],failed:[]});
+
+  const {user}=useAuth()
+  const currentUserEmail=user?.email || ''
+  const EMAILJS_SERVICE_ID=import.meta.env.VITE_EMAILJS_SERVICE_ID as string
+  const EMAILJS_TEMPLATE_ID=import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string
+  const EMAILJS_PUBLIC_KEY=import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string
+
 
   useEffect(() => {
     if (isOpen) {
-      // You could fetch current collaborators from your API here
+      const fetchUsers=async()=>{
+        if(!whiteboardId) return
+        try {
+          const boardRef = doc(firestore, 'boards', whiteboardId);
+          const boardSnap = await getDoc(boardRef)
+    
+          if (boardSnap.exists()) {
+            const data = boardSnap.data();
+            console.log('Board data loaded:', data);
+            const additionalUsers= data.additionalUsers || [];
+            setUsers(additionalUsers.map((user:{username:string,access:string})=>{
+              return {
+                email:user.username,
+                access:user.access,
+                status:'sent'
+              }
+            }))
+          } else {
+          
+          }
+        } catch (error) {
+          console.error('Error fetching board:', error);
+        } 
+      }
+      fetchUsers()
       setInviteEmail('');
       setEmailError(null);
+      setEmailSendingStatus({success:[],failed:[]});
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    console.log('Location:', window.location.href);
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      console.error('EmailJS environment variables are missing');
+    }
+  }, []);  
+
+
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,7 +93,6 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
   };
 
   const handleAddUser = () => {
-    // Validate email
     if (!inviteEmail) {
       setEmailError('Email is required');
       return;
@@ -58,24 +103,21 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
       return;
     }
 
-    // Check if user is already in the list
     if (users.some(user => user.email === inviteEmail)) {
       setEmailError('This user is already invited');
       return;
     }
 
-    // Check if it's the current user
     if (inviteEmail === currentUserEmail) {
       setEmailError('You cannot invite yourself');
       return;
     }
 
-    // Add new user to the list
     const newUser: User = {
-      id: Date.now().toString(), // temporary ID
       email: inviteEmail,
       access: selectedAccess,
-      invited: false
+      invited: false,
+      status: 'pending',
     };
 
     setUsers([...users, newUser]);
@@ -83,37 +125,118 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
     setEmailError(null);
   };
 
-  const handleRemoveUser = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId));
+  const handleRemoveUser = async (userId: string,access:string) => {
+
+    const status=users.find(user => user.email === userId)?.status
+    if(status==='sent'){
+      const docRef=doc(firestore,'boards',whiteboardId as string)
+      await updateDoc(docRef,{
+        additionalUsers:arrayRemove({
+          username:userId,
+          access
+        })
+      })
+    }
+
+    setUsers(users.filter(user => user.email !== userId));
   };
 
   const handleChangeAccess = (userId: string, access: 'view' | 'edit') => {
     setUsers(users.map(user => 
-      user.id === userId ? { ...user, access } : user
+      user.email === userId ? { ...user, access } : user
     ));
   };
 
-  const handleSendInvites = () => {
-    const uninvitedUsers = users.filter(user => !user.invited);
+  const sendInviteEmail=async(userEmail:string,accessType:'view'|'edit')=>{
+    try{
 
-    if (uninvitedUsers.length === 0) {
-      return;
-    }
-
-    setIsInviting(true);
-
-    // Mock API call to send invites
-    setTimeout(() => {
-      // Mark all users as invited
-      setUsers(users.map(user => ({ ...user, invited: true })));
-      setIsInviting(false);
+        if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+          console.error('EmailJS environment variables are missing');
+        }
+      const inviteLink=`${window.location.origin}/board/${whiteboardId}?shared=${userEmail}&mode=${accessType}`
+      console.log('Invite link:', inviteLink);
       
-      // Show success message or close dialog
-      alert(`Invitations sent to ${uninvitedUsers.length} user(s)`);
-    }, 1000);
+      const templateParams={
+        to_email:userEmail,
+        from_name:currentUserEmail,
+        whiteboard_name:whiteboardName,
+        access_type:accessType==='edit'?'Edit':'View',
+        invite_link:inviteLink
+      }
+
+      const response=await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_PUBLIC_KEY
+      )
+
+      const docRef=doc(firestore,'boards',whiteboardId as string)
+      const boardSnap=await getDoc(docRef)
+      if(!boardSnap.exists()){
+        console.error('Board does not exist')
+        return false
+      }
+      
+      await updateDoc(docRef,{
+        additionalUsers:arrayUnion({
+          username:userEmail,
+          access:accessType,
+        })
+      })
+
+      console.log('Email sent successfully:', response);
+      return true
+    }
+    catch(err){
+      console.error('Error sending email:', err);
+      return false
+    }
+  }
+
+  const handleSendInvites = async () => {
+    const pendingUsers = users.filter(user => user.status === 'pending' && !user.invited);
+    if (pendingUsers.length === 0) return;
+    
+    setIsInviting(true);
+    const successfulEmails: string[] = [];
+    const failedEmails: string[] = [];
+    
+    for (const user of pendingUsers) {
+      console.log(`Sending invite to ${user.email} with access ${user.access}`);
+      
+      try {
+        const success = await sendInviteEmail(user.email, user.access);
+        
+        if (success) {
+          successfulEmails.push(user.email);
+          
+          setUsers(currentUsers => {
+            return currentUsers.map(u => 
+              u.email === user.email 
+                ? {...u, invited: true, status: 'sent' as const} 
+                : u
+            );
+          });
+          
+          await new Promise(resolve => setTimeout(resolve, 50));
+        } else {
+          failedEmails.push(user.email);
+        }
+      } catch (error) {
+        failedEmails.push(user.email);
+        console.error(`Error sending to ${user.email}:`, error);
+      }
+    }
+    
+    setEmailSendingStatus({
+      success: successfulEmails,
+      failed: failedEmails
+    });
+    
+    setIsInviting(false);
   };
 
-  // If dialog is not open, don't render anything
   if (!isOpen) return null;
 
   return (
@@ -128,8 +251,8 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
         
         <div className="collaborate-dialog-content">
           <div className="whiteboard-info">
-            <h3>Whiteboard: {whiteboardId}</h3>
-            <p className="owner-info">Created by: {currentUserEmail} (you)</p>
+            <h3>Whiteboard: {whiteboardName}</h3>
+            <p className="owner-info">Created by: {currentUserEmail} </p>
           </div>
           
           <div className="add-collaborator">
@@ -172,7 +295,8 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
             {users.length === 0 ? (
               <div className="no-collaborators">No collaborators added yet</div>
             ) : (
-              <table className="collaborators-table">
+              <>
+                <table className="collaborators-table">
                 <thead>
                   <tr>
                     <th>Email</th>
@@ -181,9 +305,9 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className='table-body'>
                   {users.map(user => (
-                    <tr key={user.id} className={user.invited ? 'invited' : 'pending'}>
+                    <tr key={user.email} className={user.invited ? 'invited' : 'pending'}>
                       <td className="email-cell">{user.email}</td>
                       <td className="access-cell">
                         <div className="access-badge">
@@ -201,27 +325,32 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
                         </div>
                         <select
                           value={user.access}
-                          onChange={(e) => handleChangeAccess(user.id, e.target.value as 'view' | 'edit')}
+                          onChange={(e) => handleChangeAccess(user.email, e.target.value as 'view' | 'edit')}
                           className="access-select"
+                          disabled={user.status==='sent'}
                         >
                           <option value="view">View</option>
                           <option value="edit">Edit</option>
                         </select>
                       </td>
                       <td className="status-cell">
-                        {user.invited ? (
-                          <span className="status invited">
-                            <Check size={14} />
-                            Invited
-                          </span>
-                        ) : (
-                          <span className="status pending">Pending</span>
-                        )}
+                        <div className={`status-badge ${user.status}`}>
+                          {user.status === 'sent' ? (
+                            <>
+                              <Check size={14} />
+                              <span>Sent</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Pending</span>
+                            </>
+                          )}
+                        </div>
                       </td>
                       <td className="actions-cell">
                         <button 
                           className="remove-button" 
-                          onClick={() => handleRemoveUser(user.id)}
+                          onClick={() => handleRemoveUser(user.email,user.access)}
                           aria-label="Remove user"
                         >
                           <Trash2 size={16} />
@@ -231,6 +360,19 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
                   ))}
                 </tbody>
               </table>
+
+              {emailSendingStatus.success.length > 0 && (
+                <div className="success-message">
+                  Successfully sent invitations to: {emailSendingStatus.success.join(', ')}
+                </div>
+              )}
+
+              {emailSendingStatus.failed.length > 0 && (
+                <div className="error-message">
+                  Failed to send invitations to: {emailSendingStatus.failed.join(', ')}
+                </div>
+              )}
+            </>
             )}
           </div>
         </div>

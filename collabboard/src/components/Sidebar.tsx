@@ -2,19 +2,17 @@ import { useState } from 'react';
 import { 
   ChevronRight, 
   ChevronLeft, 
-  Settings, 
   Save, 
   FileText, 
-  Share2, 
   Image, 
   LogOut,
+  Edit,
   Users,
   Eye
 } from 'lucide-react';
 import './Sidebar.css';
 import ExportDialog from './dialogBoxes/ExportDialog';
 import { useFabric } from '../context/FabricContext';
-import ShareDialog from './dialogBoxes/ShareDialog';
 import CollaborateDialog from './dialogBoxes/CollaborateDialog';
 import { useAuth } from '../providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -25,9 +23,10 @@ interface SidebarProps {
   currentUserEmail?: string | undefined | null;
   onSaveBoard?:()=>void;
   hasEditAccess:boolean;
+  whiteboardName?:string
 }
 
-export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasEditAccess }: SidebarProps) {
+export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasEditAccess,whiteboardName }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const canvas=useFabric()
@@ -61,11 +60,11 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
     <>
   <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <div className="sidebar-header">
-        {/* {isExpanded && <h6>{currentUserEmail}</h6>} */}
         {isExpanded && (
             <div>
               <h6>{currentUserEmail}</h6>
               {!hasEditAccess && <div className="view-only-badge"><Eye size={12} /> View Only</div>}
+              {hasEditAccess && <div className="edit-badge"><Edit size={12} /> Edit</div>}
             </div>
           )}
         <button className="toggle-btn" onClick={toggleSidebar}>
@@ -78,10 +77,6 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
           <FileText size={20} />
           {isExpanded && <span>New Whiteboard</span>}
         </div>
-                {/* <div className="sidebar-item" onClick={()=>onSaveBoard?.()}>
-                  <Save size={20} />
-                  {isExpanded && <span>Save</span>}
-                </div> */}
           {hasEditAccess && (
             <div className="sidebar-item" onClick={() => onSaveBoard?.()}>
               <Save size={20} />
@@ -93,19 +88,14 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
           <Image size={20} />
           {isExpanded && <span>Export Canvas</span>}
         </div>
-        <div className="sidebar-item" onClick={()=>handleOptionClick('share')}>
-          <Share2 size={20} />
-          {isExpanded && <span>Share</span>}
-        </div>
-        <div className="sidebar-item" onClick={()=>handleOptionClick('collaborate')}>
+
+        {hasEditAccess && (
+         <div className="sidebar-item" onClick={()=>handleOptionClick('collaborate')}>
           <Users size={20} />
           {isExpanded && <span>Collaborate</span>}
-        </div>
+          </div>         
+        )}
 
-        {/* <div className="sidebar-item" onClick={()=>handleOptionClick('settings')}>
-          <Settings size={20} />
-          {isExpanded && <span>Settings</span>}
-        </div> */}
       </div>
       
       <div className="sidebar-footer">
@@ -123,19 +113,14 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
             canvas={canvas}
       />
     )}
-    {activeDialog === 'share' && (
-      <ShareDialog isOpen={activeDialog==='share'}
-        onClose={closeDialog}
-        whiteboardId={whiteboardId}/>
-    )}
+
     {activeDialog === 'collaborate' && (
       <CollaborateDialog isOpen={activeDialog==='collaborate'}
         onClose={closeDialog}
         whiteboardId={whiteboardId}
-        currentUserEmail={currentUserEmail}/>
+        whiteboardName={whiteboardName}
+      />
     )}
-    {activeDialog === 'settings' && <div className="dialog">Settings Dialog</div>}
-
     </>
   );
 }

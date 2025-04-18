@@ -313,3 +313,32 @@
       padding: 3px 6px;
     }
   }
+
+
+  .table-body{
+    overflow-y: scroll;
+    scrollbar-width: none;
+  }
+
+.status-cell {
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85em;
+}
+
+.status-badge.sent {
+  background-color: #e6f4ea;
+  color: #137333;
+}
+
+.status-badge.pending {
+  background-color: #fef7e0;
+  color: #b06000;
+}

@@ -25,32 +25,12 @@ export default function WhiteBoard() {
   const { user } = useAuth();
   const {boardId}=useParams<{boardId:string}>()
 
-  // const socket=io('http://localhost:3000')
   useEffect(() => {
     if (fabricCanvasRef.current && !canvas) {
       setCanvas(fabricCanvasRef.current);
     }
   }, [canvas, fabricCanvasRef.current]);
 
-  // useEffect(()=>{
-  //   socket.on('connect',()=>{
-  //     console.log('Connected to server:',socket.id);
-      
-  //   })
-
-  //   socket.on('welcome',(message)=>{
-  //     console.log('Server says :',message);
-  //   })
-
-  //   socket.on('disconnect',()=>{
-  //     console.log('Disconnected from server');
-  //   })
-  //   return ()=>{
-  //     socket.off('connect');
-  //     socket.off('welcome');
-  //     socket.off('disconnect');
-  //   }
-  // },[])
 
 useEffect(() => {
   async function checkAndCreateBoard() {
@@ -163,6 +143,7 @@ useEffect(() => {
             whiteboardId={boardId}
             onSaveBoard={saveCanvasState}
             hasEditAccess={hasEditAccess}
+            whiteboardName={boardData?.boardName}
             />
           <main className="whiteboard-content">
             <FabricCanvas 

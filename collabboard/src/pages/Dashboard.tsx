@@ -5,15 +5,13 @@ import {
   Trash2, 
   LogOut,
   User,
-  Link,
-  BellRing
 } from 'lucide-react';
 import './Dashboard.css';
 import { useAuth } from '../providers/AuthProvider';
 import JoinBoard from '../components/dialogBoxes/JoinBoard';
 import { v4 as uuidv4 } from 'uuid';
 import { firestore  } from '../utils/firebase';
-import { collection, getDocs, query, Timestamp, where,doc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where,doc, deleteDoc, getDoc } from 'firebase/firestore';
 import Loader from '../components/Loader';
 
 interface Whiteboard {
@@ -192,14 +190,6 @@ export default function Dashboard() {
           <div className="sidebar-item create-new" onClick={handleCreateWhiteboard}>
             <Plus size={20} />
             <span>New Whiteboard</span>
-          </div>
-          <div className="sidebar-item create-new" onClick={handleJoinWhiteboard}>
-            <Link size={20} />
-            <span>Join using Link</span>
-          </div>
-          <div className="sidebar-item create-new" onClick={openRequests}>
-            <BellRing size={20} />
-            <span>Access Requests</span>
           </div>
         </div>
         
