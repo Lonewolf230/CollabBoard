@@ -6,12 +6,14 @@ import AuthProvider from './providers/AuthProvider'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './utils/ProtectedRoute'
 import Error from './components/Error'
+import { ToastProvider } from './utils/ToastManager'
 
 function App() {
 
   return (
     <>
       <AuthProvider>
+        <ToastProvider>
         <Router>
           <Routes>
             <Route path='/' element={
@@ -23,15 +25,17 @@ function App() {
                 </ProtectedRoute>
               }/>
             <Route path='/board' element={<Error message={'Sorry but the whiteboard does not exist'}/>}/>  
-            <Route path='/board/:boardId' element={
-                <ProtectedRoute>
-                  <WhiteBoard/>
-                </ProtectedRoute>
-              }
-              errorElement={<Error message={'Sorry but the whiteboard does not exist'}/>}
-              />
+              <Route path='/board/:boardId' element={
+                  <ProtectedRoute>
+                    <WhiteBoard/>
+                  </ProtectedRoute>
+                }
+                errorElement={<Error message={'Sorry but the whiteboard does not exist'}/>}
+                />
+ 
           </Routes>
         </Router>
+        </ToastProvider>
       </AuthProvider>
     </>
   )

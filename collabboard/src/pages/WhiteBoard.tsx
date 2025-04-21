@@ -8,10 +8,11 @@ import SaveBoard from "../components/SaveBoard";
 import { FabricContext } from "../context/FabricContext";
 import "./WhiteBoard.css";
 import { useAuth } from "../providers/AuthProvider";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { useParams,useSearchParams } from "react-router-dom";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firestore } from "../utils/firebase";
+import { useToast } from "../utils/ToastManager";
 
 export default function WhiteBoard() {
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
@@ -25,6 +26,51 @@ export default function WhiteBoard() {
   const { user } = useAuth();
   const {boardId}=useParams<{boardId:string}>()
   const [searchParams]=useSearchParams()
+  const toast=useToast()
+
+  const [socketInstance, setSocketInstance] = useState<Socket|null>(null);
+  const socketInitialized = useRef(false);
+
+  useEffect(()=>{
+    if(socketInitialized.current) return
+    const socket=io('http://localhost:3000')
+
+    socket.on('connect',()=>{
+      console.log('Connected to socket server ',socket.id)
+      socket.emit('join-room',{
+        roomId:boardId,
+        userId:user?.email      
+      })
+
+      toast.showToast('Connected to whiteboard', 'success', 2000, 'top-right')
+    })
+
+    socket.on('room-joined',(data)=>{
+      console.log('Joined room:',data.roomId)
+    })
+
+    socket.on('user-joined',(data)=>{
+      console.log('User joined:',data.userId)
+      toast.showToast(`User ${data.userId} joined`, 'info', 2000, 'top-right')
+    })
+
+    socket.on('user-left',(data)=>{
+      console.log('User left:',data.userId)
+      toast.showToast(`${data.userId} left`, 'info', 2000, 'top-right')
+    })
+
+    setSocketInstance(socket)
+    socketInitialized.current=true
+
+    return ()=>{
+      if(socket){
+        socket.emit('leave-room',{roomId:boardId,userId:user?.email})
+        socket.disconnect()
+        socketInitialized.current=false
+        console.log('Disconnected from socket server')
+      }
+    }
+  },[])
 
   useEffect(() => {
     if (fabricCanvasRef.current && !canvas) {
