@@ -28,13 +28,13 @@ export default function WhiteBoard() {
   const [searchParams]=useSearchParams()
   const toast=useToast()
 
-  const [socketInstance, setSocketInstance] = useState<Socket|null>(null);
+  const socketRef=useRef<Socket|null>(null);
   const socketInitialized = useRef(false);
 
   useEffect(()=>{
     if(socketInitialized.current) return
     const socket=io('http://localhost:3000')
-
+    socketRef.current=socket
     socket.on('connect',()=>{
       console.log('Connected to socket server ',socket.id)
       socket.emit('join-room',{
@@ -42,7 +42,7 @@ export default function WhiteBoard() {
         userId:user?.email      
       })
 
-      toast.showToast('Connected to whiteboard', 'success', 2000, 'top-right')
+      toast.success('Connected to whiteboard',{duration:2000,position:'top-right'})
     })
 
     socket.on('room-joined',(data)=>{
@@ -51,15 +51,19 @@ export default function WhiteBoard() {
 
     socket.on('user-joined',(data)=>{
       console.log('User joined:',data.userId)
-      toast.showToast(`User ${data.userId} joined`, 'info', 2000, 'top-right')
+      toast.info(`User ${data.userId} joined`,{duration:2000,position:'top-right'})
     })
 
     socket.on('user-left',(data)=>{
       console.log('User left:',data.userId)
-      toast.showToast(`${data.userId} left`, 'info', 2000, 'top-right')
+      toast.info(`${data.userId} left`,{duration:2000,position:'top-right'})
     })
 
-    setSocketInstance(socket)
+    socket.on('save-response',(data)=>{
+      console.log('Save response:',data.message)
+      toast.info(data.message,{duration:2000,position:'top-right'})
+    })
+
     socketInitialized.current=true
 
     return ()=>{
@@ -150,6 +154,18 @@ useEffect(() => {
         canvasState:canvasJSON,
         lastUpdatedAt:serverTimestamp()
       },{merge:true})
+      toast.success('Canvas state saved successfully',{duration:2000,position:'top-right'})
+      if(socketRef.current?.connected ){
+        console.log('Emiting save message');
+        
+        socketRef.current.emit('save-message',{
+          message:`Canvas saved by ${user.email}`,
+          roomId:boardId
+        })
+      }
+      else{
+        console.error('Socket not connected')
+      }
     } catch (error) {
       console.error('Error saving canvas state:',error);
       setError('Failed to save canvas state')
@@ -206,7 +222,10 @@ useEffect(() => {
             <FabricCanvas 
                 canvasRef={fabricCanvasRef}
                 initialCanvasState={boardData?.canvasState || undefined}
-                hasEditAccess={hasEditAccess} />
+                hasEditAccess={hasEditAccess}
+                saveToFirestore={saveCanvasState}
+                boardId={boardId || ""}
+                 />
           </main>
           {hasEditAccess && <ToolBar/>}
         </div>
