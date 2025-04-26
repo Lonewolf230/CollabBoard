@@ -30,7 +30,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({ isOpen, onClose, whiteboardId
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy link:', err);
+      // console.error('Failed to copy link:', err);
     }
   };
 
@@ -44,18 +44,16 @@ const ShareDialog: React.FC<ShareDialogProps> = ({ isOpen, onClose, whiteboardId
     });
   };
 
-  const regenerateLink = () => {
-    setIsGeneratingLink(true);
-    
-    // Simulate API call to generate a new link
-    setTimeout(() => {
-      const randomId = Math.random().toString(36).substring(2, 10);
-      const baseUrl = window.location.origin;
-      const url = `${baseUrl}/shared/${whiteboardId}-${randomId}?mode=${shareOption}`;
-      setShareUrl(url);
-      setIsGeneratingLink(false);
-    }, 1000);
-  };
+  // const regenerateLink = () => {
+  //   setIsGeneratingLink(true);
+  //       setTimeout(() => {
+  //     const randomId = Math.random().toString(36).substring(2, 10);
+  //     const baseUrl = window.location.origin;
+  //     const url = `${baseUrl}/shared/${whiteboardId}-${randomId}?mode=${shareOption}`;
+  //     setShareUrl(url);
+  //     setIsGeneratingLink(false);
+  //   }, 1000);
+  // };
 
   // Don't render if dialog is not open
   if (!isOpen) return null;

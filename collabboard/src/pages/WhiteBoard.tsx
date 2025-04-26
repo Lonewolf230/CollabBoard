@@ -33,10 +33,10 @@ export default function WhiteBoard() {
 
   useEffect(()=>{
     if(socketInitialized.current) return
-    const socket=io('http://localhost:3000')
+    const socket=io(import.meta.env.VITE_BACKEND_URL)
     socketRef.current=socket
     socket.on('connect',()=>{
-      console.log('Connected to socket server ',socket.id)
+      // console.log('Connected to socket server ',socket.id)
       socket.emit('join-room',{
         roomId:boardId,
         userId:user?.email      
@@ -46,21 +46,21 @@ export default function WhiteBoard() {
     })
 
     socket.on('room-joined',(data)=>{
-      console.log('Joined room:',data.roomId)
+      // console.log('Joined room:',data.roomId)
     })
 
     socket.on('user-joined',(data)=>{
-      console.log('User joined:',data.userId)
+      // console.log('User joined:',data.userId)
       toast.info(`User ${data.userId} joined`,{duration:2000,position:'top-right'})
     })
 
     socket.on('user-left',(data)=>{
-      console.log('User left:',data.userId)
+      // console.log('User left:',data.userId)
       toast.info(`${data.userId} left`,{duration:2000,position:'top-right'})
     })
 
     socket.on('save-response',(data)=>{
-      console.log('Save response:',data.message)
+      // console.log('Save response:',data.message)
       toast.info(data.message,{duration:2000,position:'top-right'})
     })
 
@@ -85,7 +85,7 @@ export default function WhiteBoard() {
 
 useEffect(() => {
   async function checkAndCreateBoard() {
-    console.log('Search params: ',searchParams.get('shared'));
+    // console.log('Search params: ',searchParams.get('shared'));
     
     if (!boardId || !user) {
       setLoading(false);
@@ -95,7 +95,7 @@ useEffect(() => {
 
     const sharedEmail= searchParams.get('shared')
     if(sharedEmail!=null && sharedEmail!==user.email){
-      console.error('Fishy');
+      // console.error('Fishy');
       
       setError('You do not have access to this board')
       return
@@ -110,7 +110,7 @@ useEffect(() => {
 
       if (boardSnap.exists()) {
         const data = boardSnap.data();
-        console.log('Board data loaded:', data);
+        // console.log('Board data loaded:', data);
 
         const isOwner = data.ownerName === user.email;
         const additionalUser = data.additionalUsers?.find(
@@ -134,7 +134,7 @@ useEffect(() => {
         setShowNamePrompt(true);
       }
     } catch (error) {
-      console.error('Error fetching board:', error);
+      // console.error('Error fetching board:', error);
       setError('Failed to create or fetch board');
     } finally {
       setLoading(false);
@@ -156,7 +156,7 @@ useEffect(() => {
       },{merge:true})
       toast.success('Canvas state saved successfully',{duration:2000,position:'top-right'})
       if(socketRef.current?.connected ){
-        console.log('Emiting save message');
+        // console.log('Emiting save message');
         
         socketRef.current.emit('save-message',{
           message:`Canvas saved by ${user.email}`,
@@ -164,10 +164,10 @@ useEffect(() => {
         })
       }
       else{
-        console.error('Socket not connected')
+        // console.error('Socket not connected')
       }
     } catch (error) {
-      console.error('Error saving canvas state:',error);
+      // console.error('Error saving canvas state:',error);
       setError('Failed to save canvas state')
     }
   }
@@ -188,9 +188,9 @@ useEffect(() => {
       }
       await setDoc(boardRef,newBoard)
       setBoardData(newBoard)
-      console.log('New board created:',newBoard);
+      // console.log('New board created:',newBoard);
     } catch (error) {
-      console.error('Error creating new board:',error);
+      // console.error('Error creating new board:',error);
       setError('Failed to create new board')
     }
     finally{
@@ -223,7 +223,6 @@ useEffect(() => {
                 canvasRef={fabricCanvasRef}
                 initialCanvasState={boardData?.canvasState || undefined}
                 hasEditAccess={hasEditAccess}
-                saveToFirestore={saveCanvasState}
                 boardId={boardId || ""}
                  />
           </main>

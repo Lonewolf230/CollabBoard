@@ -51,7 +51,7 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
   }
 
   const onLogout=async()=>{
-    console.log(user)
+    // console.log(user)
     await logOut()
     navigate('/')
   }

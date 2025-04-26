@@ -18,6 +18,7 @@ const AuthPage: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const {createUser,loginUser,user,googleLogin,changePassword}=useAuth()
@@ -44,13 +45,18 @@ const AuthPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsSubmitting(true);
     console.log('From: ',from)
     try {
 
       if(!isLogin){
         if(formData.password !== formData.confirmPassword){
-          alert('Passwords do not match!');
+          setError('Passwords do not match!');
+          setTimeout(() => {
+            setError(null);
+          }, 3000);
+          setIsSubmitting(false);
           return;
         }
         await createUser(formData.email,formData.password)
@@ -61,8 +67,12 @@ const AuthPage: React.FC = () => {
         navigate(from)
       }
     } catch (error) {
-      console.error('Authentication error:', error);
-      alert('Authentication failed. Please try again.');
+      // console.error('Authentication error:', error);
+      const errorMessage='Authentication failed. Please try again.'
+      setError(errorMessage);
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +93,7 @@ const AuthPage: React.FC = () => {
       await changePassword(formData.email)
       alert('Password reset email sent!')
     } catch (error) {
-      console.error('Error sending password reset email:', error);
+      // console.error('Error sending password reset email:', error);
       alert('Failed to send password reset email. Please try again.');
     }
   }
@@ -157,7 +167,11 @@ const AuthPage: React.FC = () => {
               </div>
             )}
           </div>
-
+          {error && (
+            <div className='error-container'>
+              <p className="error-message">{error}</p>
+            </div>
+          )}
           <button 
             type="submit" 
             className={`submit-button ${isSubmitting ? 'loading' : ''}`}

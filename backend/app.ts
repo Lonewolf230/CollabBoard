@@ -3,15 +3,16 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import http from 'http';
 import { Server } from 'socket.io';
-import { log } from 'console';
+import { configDotenv } from 'dotenv';
+configDotenv()
 
 const app = express();
-const PORT = 3000;
+const PORT=process.env.PORT;
 
 const server=http.createServer(app);
 const io=new Server(server,{
   cors:{
-    origin:"http://localhost:5173",
+    origin:"*",
     methods:["GET","POST"]
   }
 })
@@ -44,8 +45,6 @@ io.on('connection',(socket)=>{
     if(!userRooms[socket.id].includes(roomId)){
       userRooms[socket.id].push(roomId)
     }
-
-
     socket.join(roomId)
     console.log(`user ${userId} joined room ${roomId}`)
 
@@ -158,5 +157,5 @@ io.on('connection',(socket)=>{
 
 
 server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log('Server runnning successfully')
 })

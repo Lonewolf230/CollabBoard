@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react';
+import React,{ useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
@@ -37,7 +37,7 @@ export default function Dashboard() {
     setIsLoading(true);
     const fetchWhiteboards=async()=>{
       if(!user){
-        console.error('User not found');
+        // console.error('User not found');
         return
       }
       const email=user.email
@@ -98,7 +98,7 @@ export default function Dashboard() {
 
         setWhiteboards(boards)
       } catch (error) {
-        console.error('Error fetching whiteboards:',error);
+        // console.error('Error fetching whiteboards:',error);
         setError('Failed to fetch whiteboards')
       }
       finally{
@@ -108,8 +108,6 @@ export default function Dashboard() {
     fetchWhiteboards()
   },[user])
   
-
-
   const handleCreateWhiteboard = () => {
     const newBoardId = uuidv4();
     navigate(`/board/${newBoardId}`);
@@ -143,26 +141,20 @@ export default function Dashboard() {
       setWhiteboards(updatedWhiteboards)
     }
     catch(error){
-      console.error('Error deleting whiteboard:',error);
+      // console.error('Error deleting whiteboard:',error);
       setError('Failed to delete whiteboard')
     }
     finally{
       setIsLoading(false)
     }
 
-    console.log(`Delete whiteboard ${id}`);
+    // console.log(`Delete whiteboard ${id}`);
   };
-
-  const handleJoinWhiteboard = () => {
-    setShowJoinBoard(true)
-  }
 
   const onLogout = async () => {
     await logOut();
     navigate('/');
   };
-
-  const openRequests=()=>{}
 
 
   const formatDate = (dateInput: any) => {
@@ -177,7 +169,6 @@ export default function Dashboard() {
       hour12: true,
     }).replace(',', ' at');
   };
-  
 
   return (
     <div className="dashboard-container">
@@ -216,7 +207,9 @@ export default function Dashboard() {
             </div>
           ):(
             <div className="whiteboard-grid">
-                {whiteboards.map(whiteboard => (
+                {whiteboards.map(whiteboard => {
+                  
+                return (
                   <div 
                     key={whiteboard.boardId} 
                     className="whiteboard-card"
@@ -250,7 +243,7 @@ export default function Dashboard() {
                       <Trash2 size={18} />
                     </button>
                   </div>
-                ))}
+                )})}
             </div>
           )}
           

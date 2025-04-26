@@ -174,7 +174,6 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
       const docRef=doc(firestore,'boards',whiteboardId as string)
       const boardSnap=await getDoc(docRef)
       if(!boardSnap.exists()){
-        console.error('Board does not exist')
         return false
       }
       
@@ -185,11 +184,9 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
         })
       })
 
-      console.log('Email sent successfully:', response);
       return true
     }
     catch(err){
-      console.error('Error sending email:', err);
       return false
     }
   }
@@ -203,7 +200,7 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
     const failedEmails: string[] = [];
     
     for (const user of pendingUsers) {
-      console.log(`Sending invite to ${user.email} with access ${user.access}`);
+      // console.log(`Sending invite to ${user.email} with access ${user.access}`);
       
       try {
         const success = await sendInviteEmail(user.email, user.access);
@@ -225,7 +222,7 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
         }
       } catch (error) {
         failedEmails.push(user.email);
-        console.error(`Error sending to ${user.email}:`, error);
+        // console.error(`Error sending to ${user.email}:`, error);
       }
     }
     

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, X } from 'lucide-react';
-import './JoinBoard.css'; // You'll need to create this CSS file
+import './JoinBoard.css'; 
 
 interface JoinBoardProps {
   onClose: () => void;
@@ -15,21 +15,14 @@ export default function JoinBoard({ onClose }: JoinBoardProps) {
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!boardLink.trim()) {
       setError('Please enter a valid board link');
       return;
     }
-
-    // You might want to validate the link format here
-    // For example, check if it contains a valid board ID
     
     try {
-      // Extract board ID from link or use the link directly
-      // This is a simplified example - adjust based on your link format
       const boardId = new URL(boardLink).searchParams.get('id') || 'shared';
       
-      // Navigate to the board with the extracted ID
       navigate(`/board/${boardId}`);
     } catch (err) {
       setError('Invalid URL format. Please enter a valid board link.');

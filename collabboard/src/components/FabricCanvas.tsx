@@ -1,117 +1,18 @@
 
-// import { useEffect, useRef, useState } from "react";
-// import * as fabric from "fabric";
-
-// type Props = {
-//   canvasRef: React.MutableRefObject<fabric.Canvas | null>;
-//   initialCanvasState?: string;
-//   hasEditAccess?: boolean;
-// };
-
-// export default function FabricCanvas({ canvasRef, initialCanvasState,hasEditAccess }: Props) {
-//   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
-//   const [isCanvasLoaded, setIsCanvasLoaded] = useState(false);
-
-//   useEffect(() => {
-//     if (!htmlCanvasRef.current) return;
-
-//     console.log("Initializing new canvas");
-//     const canvas = new fabric.Canvas(htmlCanvasRef.current, {
-//       backgroundColor: "white",
-//       width: window.innerWidth + 100,
-//       height: window.innerHeight + 100,
-//       selection:hasEditAccess,
-      
-//     });
-
-//     if (hasEditAccess) {
-//       canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-//       canvas.freeDrawingBrush.color = "black";
-//       canvas.freeDrawingBrush.width = 3;
-//       canvas.isDrawingMode = true;
-//     } else {
-//       canvas.selection = false;
-//       canvas.hoverCursor = 'default';
-//       canvas.defaultCursor = 'default';
-//       canvas.isDrawingMode = false;
-//     }
-    
-//     canvasRef.current = canvas;
-//     setIsCanvasLoaded(true);
-
-//     const handleResize = () => {
-//       canvas.setDimensions({
-//         width: window.innerWidth,
-//         height: window.innerHeight - 80,
-//       });
-//       canvas.renderAll();
-//     };
-
-//     window.addEventListener('resize', handleResize);
-
-//     return () => {
-//       canvas.dispose();
-//       window.removeEventListener('resize', handleResize);
-//     };
-//   }, []);  
-
-//   useEffect(() => {
-//     if (!isCanvasLoaded || !canvasRef.current || !initialCanvasState) return;
-    
-//     console.log("Loading initial canvas state:", typeof initialCanvasState);
-    
-//     try {
-//       const canvasState = typeof initialCanvasState === 'string' 
-//         ? JSON.parse(initialCanvasState) 
-//         : initialCanvasState;
-      
-//       canvasRef.current.loadFromJSON(canvasState, () => {
-//         console.log("Canvas state loaded successfully");
-//         canvasRef.current?.renderAll();
-        
-//         setTimeout(() => {
-//           canvasRef.current?.renderAll();
-//         }, 50);
-//         setTimeout(() => {
-//           canvasRef.current?.renderAll();
-//         }, 200);
-//         if (!hasEditAccess && canvasRef.current) {
-//           canvasRef.current.getObjects().forEach(obj => {
-//             obj.selectable = false;
-//             obj.evented = false;
-//           });
-//           canvasRef.current.selection = false;
-//           canvasRef.current.renderAll();
-//         }
-//       });
-//     } catch (error) {
-//       console.error("Error loading canvas state:", error);
-//       console.error("State content:", initialCanvasState);
-//     }
-//   }, [isCanvasLoaded, initialCanvasState]);
-
-//   return (
-//     <div style={{overflow: "scroll"}}>
-//       <canvas ref={htmlCanvasRef}></canvas>
-//     </div>
-//   );
-// }
 
 import { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import { useAuth } from "../providers/AuthProvider";
 import { io, Socket } from "socket.io-client";
-import { data } from "react-router-dom";
 
 type Props = {
   canvasRef: React.MutableRefObject<fabric.Canvas | null>;
   initialCanvasState?: string;
   hasEditAccess?: boolean;
-  saveToFirestore?: (canvas: fabric.Canvas, jsonData?: any) => void;
   boardId: string;
 };
 
-export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAccess, saveToFirestore, boardId }: Props) {
+export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAccess, boardId }: Props) {
   const htmlCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isCanvasLoaded, setIsCanvasLoaded] = useState(false);
   const { user } = useAuth();
@@ -183,7 +84,7 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
     if (!isCanvasLoaded || !canvasRef.current || isUpdatingRef.current) return;
     
     if (initialCanvasState && initialCanvasState !== "") {
-      console.log("Loading initial canvas state");
+      // console.log("Loading initial canvas state");
       
       try {
         isUpdatingRef.current = true;
@@ -222,11 +123,11 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
           isUpdatingRef.current = false;
         });
       } catch (error) {
-        console.error("Error loading initial canvas state:", error);
+        // console.error("Error loading initial canvas state:", error);
         isUpdatingRef.current = false;
       }
     } else {
-      console.log("No initial canvas state");
+      // console.log("No initial canvas state");
     }
   }, [isCanvasLoaded, initialCanvasState, hasEditAccess]);
 
@@ -236,11 +137,11 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
     const canvas = canvasRef.current;
     
     if (!socketRef.current) {
-      console.log("Connecting to WebSocket server");
-      socketRef.current = io('http://localhost:3000');
+      // console.log("Connecting to WebSocket server");
+      socketRef.current = io(import.meta.env.VITE_BACKEND_URL);
       
       socketRef.current.on('connect', () => {
-        console.log("WebSocket connected, joining room:", boardId);
+        // console.log("WebSocket connected, joining room:", boardId);
         socketRef.current?.emit('join-room', {
           roomId: boardId,
           userId: user.email
@@ -252,16 +153,16 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
       if (!canvasRef.current || isUpdatingRef.current) return;
       
       if (data.userId === user.email) {
-        console.log("Ignoring update from self");
+        // console.log("Ignoring update from self");
         return;
       }
       
       if (lastSyncedStateRef.current === data.state) {
-        console.log("Ignoring duplicate state update");
+        // console.log("Ignoring duplicate state update");
         return;
       }
       
-      console.log(`Received canvas update from: ${data.userId}`);
+      // console.log(`Received canvas update from: ${data.userId}`);
       
       try {
         isUpdatingRef.current = true;
@@ -272,7 +173,7 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
         
         canvas.loadFromJSON(canvasState, () => {
           canvas.renderAll();
-          console.log("Successfully rendered updated canvas from WebSocket");
+          // console.log("Successfully rendered updated canvas from WebSocket");
           
           if (!hasEditAccess) {
             canvas.getObjects().forEach(obj => {
@@ -284,14 +185,14 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
           isUpdatingRef.current = false;
         });
       } catch (error) {
-        console.error("Error processing canvas update:", error);
+        // console.error("Error processing canvas update:", error);
         isUpdatingRef.current = false;
       }
     };
 
     const handleCanvasStateRequest=(data:any)=>{
       if(!canvasRef.current || !hasEditAccess) return;
-      console.log("Canvas state requested by server, syncing...");
+      // console.log("Canvas state requested by server, syncing...");
       try {
         ensureObjectIds();
         const canvasState = JSON.stringify(canvasRef.current.toJSON());
@@ -301,10 +202,10 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
           state: canvasState,
           timestamp: Date.now()
         })
-        console.log(`Sent data to new user: ${data.requestingUserId}`);
+        // console.log(`Sent data to new user: ${data.requestingUserId}`);
         
       } catch (error) {
-        console.error("Error syncing canvas state:", error);
+        // console.error("Error syncing canvas state:", error);
       }  
     }
     
@@ -325,11 +226,11 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
         ensureObjectIds();
         const canvasState = JSON.stringify(canvas.toJSON());
         if (lastSyncedStateRef.current === canvasState) {
-          console.log("No changes to sync");
+          // console.log("No changes to sync");
           return;
         }
         
-        console.log("Syncing canvas to WebSocket clients...");
+        // console.log("Syncing canvas to WebSocket clients...");
         lastSyncedStateRef.current = canvasState;
         
         socketRef.current?.emit('canvas-update', {
@@ -339,15 +240,15 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
           timestamp: Date.now()
         });
       } catch (error) {
-        console.error("Error syncing canvas:", error);
+        // console.error("Error syncing canvas:", error);
       }
     };
     
     if (hasEditAccess) {
-      console.log("Attaching canvas change listeners for edit mode");
+      // console.log("Attaching canvas change listeners for edit mode");
       
       const handlePathCreated = () => {
-        console.log("Path created, syncing...");
+        // console.log("Path created, syncing...");
         if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
         throttleTimeout.current = setTimeout(syncToClients, 300);
       };
@@ -358,7 +259,7 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
       
       const handleModificationComplete = () => {
         objectModificationInProgress.current = false;
-        console.log("Object modification complete, syncing...");
+        // console.log("Object modification complete, syncing...");
         if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
         throttleTimeout.current = setTimeout(syncToClients, 300);
       };
@@ -367,13 +268,13 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
         // Skip for path objects which are handled by path:created
         if (e.target && e.target.type === 'path') return;
         
-        console.log("Object added, syncing...");
+        // console.log("Object added, syncing...");
         if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
         throttleTimeout.current = setTimeout(syncToClients, 300);
       };
       
       const handleObjectRemoved = () => {
-        console.log("Object removed, syncing...");
+        // console.log("Object removed, syncing...");
         if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
         throttleTimeout.current = setTimeout(syncToClients, 300);
       };

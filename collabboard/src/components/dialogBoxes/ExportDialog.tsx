@@ -52,7 +52,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, canvas }) 
         
       }
     } catch (error) {
-      console.error('Export failed:', error);
+      // console.error('Export failed:', error);
       alert('Export failed: ' + error);
     } finally {
       setIsExporting(false);
