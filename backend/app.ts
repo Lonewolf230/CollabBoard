@@ -4,6 +4,7 @@ import cors from 'cors';
 import http from 'http';
 import { Server,Socket } from 'socket.io';
 import { configDotenv } from 'dotenv';
+import router from './mailRouter';
 configDotenv()
 
 const app = express();
@@ -69,7 +70,7 @@ const userRooms:UserRooms={}
 const socketToUser:SocketToUser={}
 const roomCanvasStates:RoomCanvasStates={}
 
-app.get('/', (req:Request, res:Response) => {
+app.get('/', async (req:Request, res:Response) => {
   res.send('Hello from TypeScript backend!');
 });
 
@@ -197,6 +198,8 @@ io.on('connection',(socket:Socket)=>{
       delete userRooms[socket.id]
   }})
 })
+
+app.use('/api',router);
 
 server.listen(PORT, () => {
   console.log('Server runnning successfully')

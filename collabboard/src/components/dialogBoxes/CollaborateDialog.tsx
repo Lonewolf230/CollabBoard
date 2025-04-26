@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Send, X, Edit, Eye, Check } from 'lucide-react';
 import './CollaborateDialog.css';
-import emailjs from '@emailjs/browser';
 import { useAuth } from '../../providers/AuthProvider';
 import { arrayUnion, doc,getDoc,updateDoc,arrayRemove } from 'firebase/firestore';
 import { firestore } from '../../utils/firebase';
+import axios from 'axios';
+import { useToast } from '../../utils/ToastManager';
 
 interface User {
   email: string;
@@ -39,6 +40,7 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
   }>({success:[],failed:[]});
 
   const {user}=useAuth()
+  const toast=useToast()
   const currentUserEmail=user?.email || ''
   const EMAILJS_SERVICE_ID=import.meta.env.VITE_EMAILJS_SERVICE_ID as string
   const EMAILJS_TEMPLATE_ID=import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string
@@ -156,20 +158,30 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
       const inviteLink=`${window.location.origin}/board/${whiteboardId}?shared=${userEmail}&mode=${accessType}`
       console.log('Invite link:', inviteLink);
       
-      const templateParams={
-        to_email:userEmail,
-        from_name:currentUserEmail,
-        whiteboard_name:whiteboardName,
-        access_type:accessType==='edit'?'Edit':'View',
-        invite_link:inviteLink
-      }
+      // const templateParams={
+      //   to_email:userEmail,
+      //   from_name:currentUserEmail,
+      //   whiteboard_name:whiteboardName,
+      //   access_type:accessType==='edit'?'Edit':'View',
+      //   invite_link:inviteLink
+      // }
 
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        templateParams,
-        EMAILJS_PUBLIC_KEY
-      )
+      // await emailjs.send(
+      //   EMAILJS_SERVICE_ID,
+      //   EMAILJS_TEMPLATE_ID,
+      //   templateParams,
+      //   EMAILJS_PUBLIC_KEY
+      // )
+      const response=await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/send-invite`,{
+        fromName:currentUserEmail,
+        toEmail:userEmail,
+        inviteLink,
+        boardName:whiteboardName,
+        accessType:accessType==='edit'?'Edit':'View'
+      })
+      if(response.data.success==false){
+        toast.error('Failed to send email',{duration:2000,position:'top-right'})
+      }
 
       const docRef=doc(firestore,'boards',whiteboardId as string)
       const boardSnap=await getDoc(docRef)
