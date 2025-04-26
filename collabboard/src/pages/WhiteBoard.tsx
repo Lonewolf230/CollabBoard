@@ -17,8 +17,8 @@ import { useToast } from "../utils/ToastManager";
 export default function WhiteBoard() {
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_loading, setLoading] = useState(true);
+  const [_error, setError] = useState<string | null>(null);
   const [boardData, setBoardData] = useState<any>(null);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -45,7 +45,7 @@ export default function WhiteBoard() {
       toast.success('Connected to whiteboard',{duration:2000,position:'top-right'})
     })
 
-    socket.on('room-joined',(data)=>{
+    socket.on('room-joined',()=>{
       // console.log('Joined room:',data.roomId)
     })
 

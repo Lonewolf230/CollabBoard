@@ -30,7 +30,7 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const canvas=useFabric()
-  const {logOut,user}=useAuth()
+  const {logOut}=useAuth()
   const navigate=useNavigate()
 
   const toggleSidebar = () => {

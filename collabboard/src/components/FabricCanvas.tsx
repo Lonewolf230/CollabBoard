@@ -190,7 +190,7 @@ export default function FabricCanvas({ canvasRef, initialCanvasState, hasEditAcc
       }
     };
 
-    const handleCanvasStateRequest=(data:any)=>{
+    const handleCanvasStateRequest=()=>{
       if(!canvasRef.current || !hasEditAccess) return;
       // console.log("Canvas state requested by server, syncing...");
       try {

@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { firestore  } from '../utils/firebase';
 import { collection, getDocs, query, where,doc, deleteDoc, getDoc } from 'firebase/firestore';
 import Loader from '../components/Loader';
+import { useToast } from '../utils/ToastManager';
 
 interface Whiteboard {
   boardId: string;
@@ -30,8 +31,10 @@ export default function Dashboard() {
   const currentUser = user?.email || "User";
   const [showJoinBoard, setShowJoinBoard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const [whiteboards, setWhiteboards] = useState<Whiteboard[]>([]);
+  const toast=useToast()
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -41,7 +44,7 @@ export default function Dashboard() {
         return
       }
       const email=user.email
-      setError(null);
+      
       try {
         const ownerSearch=query(
           collection(firestore,'boards'),
@@ -99,7 +102,7 @@ export default function Dashboard() {
         setWhiteboards(boards)
       } catch (error) {
         // console.error('Error fetching whiteboards:',error);
-        setError('Failed to fetch whiteboards')
+        toast.error('Failed to fetch whiteboards',{duration:2000,position:'top-right'})
       }
       finally{
         setIsLoading(false)
@@ -126,7 +129,7 @@ export default function Dashboard() {
     const data=boardSnap.data()
 
     if(data?.ownerName!==user?.email){
-      window.alert('Only board owner can delete this board')
+      toast.error('You do not have permission to delete this whiteboard',{duration:2000,position:'top-right'})
       return
     }
 
@@ -142,7 +145,7 @@ export default function Dashboard() {
     }
     catch(error){
       // console.error('Error deleting whiteboard:',error);
-      setError('Failed to delete whiteboard')
+      toast.error('Failed to delete',{duration:2000,position:'top-right'})
     }
     finally{
       setIsLoading(false)

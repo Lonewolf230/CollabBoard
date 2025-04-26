@@ -164,7 +164,7 @@ const CollaborateDialog: React.FC<CollaborateDialogProps> = ({
         invite_link:inviteLink
       }
 
-      const response=await emailjs.send(
+      await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         templateParams,
