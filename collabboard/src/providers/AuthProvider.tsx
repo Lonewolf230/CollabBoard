@@ -31,7 +31,7 @@ import {
     googleLogin:async()=>{
       throw new Error('AuthContext not initialized');
     },
-    changePassword:async(email:string)=>{
+    changePassword:async()=>{
       throw new Error('AuthContext not initialized');
     },
     logOut: async () => {
