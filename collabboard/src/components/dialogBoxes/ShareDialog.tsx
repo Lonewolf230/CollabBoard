@@ -14,7 +14,6 @@ const ShareDialog: React.FC<ShareDialogProps> = ({ isOpen, onClose, whiteboardId
   const [shareUrl, setShareUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [shareOption, setShareOption] = useState<'view' | 'edit'>('view');
-  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
