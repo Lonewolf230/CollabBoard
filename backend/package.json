@@ -1,12 +1,15 @@
 {
   "scripts": {
+    "build": "tsc",
     "start": "ts-node app.ts",
     "dev": "nodemon --exec ts-node app.ts"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
-    "@types/node": "^22.14.1",
+    "@types/node": "^22.15.2",
+    "@types/socket.io": "^3.0.2",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"

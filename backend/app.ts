@@ -1,8 +1,8 @@
-import express from 'express';
+import express,{Request,Response} from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import http from 'http';
-import { Server } from 'socket.io';
+import { Server,Socket } from 'socket.io';
 import { configDotenv } from 'dotenv';
 configDotenv()
 
@@ -21,16 +21,59 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const roomUsers:{[key:string]:string[]}={}
-const userRooms:{[key:string]:string[]}={}
-const socketToUser:{[key:string]:string}={}
-const roomCanvasStates:{[key:string]:{state:string,timestamp:number}}={}
+interface RoomUsers{
+  [key:string]:string[]
+}
 
-app.get('/', (req, res) => {
+interface UserRooms{
+  [key:string]:string[]
+}
+
+interface SocketToUser{
+  [key:string]:string
+}
+
+interface CanvasState{
+  state:string
+  timestamp:number
+}
+
+interface RoomCanvasStates{
+  [key:string]:CanvasState
+}
+
+interface JoinRoomPayload{
+  roomId:string
+  userId:string
+}
+
+interface LeaveRoomPayload{
+  roomId:string
+  userId:string
+}
+
+interface MessagePayload{
+  message:string
+  roomId:string
+}
+
+interface CanvasUpdatePayload{
+  roomId:string
+  userId:string
+  state:string
+  timestamp:number
+}
+
+const roomUsers:RoomUsers={}
+const userRooms:UserRooms={}
+const socketToUser:SocketToUser={}
+const roomCanvasStates:RoomCanvasStates={}
+
+app.get('/', (req:Request, res:Response) => {
   res.send('Hello from TypeScript backend!');
 });
 
-io.on('connection',(socket)=>{
+io.on('connection',(socket:Socket)=>{
   console.log('a user connected');
   socket.emit('welcome',`Welcome user ${socket.id}`)
 
@@ -46,7 +89,7 @@ io.on('connection',(socket)=>{
       userRooms[socket.id].push(roomId)
     }
     socket.join(roomId)
-    console.log(`user ${userId} joined room ${roomId}`)
+    // console.log(`user ${userId} joined room ${roomId}`)
 
     if(!roomUsers[roomId]){
       roomUsers[roomId]=[]
@@ -74,7 +117,7 @@ io.on('connection',(socket)=>{
         state:roomCanvasStates[roomId].state,
         timestamp:roomCanvasStates[roomId].timestamp,
       })
-      console.log(`Sending canvas state to ${userId} for room ${roomId}`)
+      // console.log(`Sending canvas state to ${userId} for room ${roomId}`)
     }
   })
 
@@ -85,7 +128,7 @@ io.on('connection',(socket)=>{
   })
 
   socket.on('leave-room',({roomId,userId})=>{
-    console.log(`user ${userId} left room ${roomId}`)
+    // console.log(`user ${userId} left room ${roomId}`)
     socket.leave(roomId)
 
     if(userRooms[socket.id]){
@@ -112,7 +155,7 @@ io.on('connection',(socket)=>{
   socket.on('canvas-update',(data)=>{
     const {roomId,userId,state,timestamp}=data
     if(!roomId || !userId || !state){
-      console.log('Invalid data received')
+      // console.log('Invalid data received')
       return
     }
     if(!roomCanvasStates[roomId] || timestamp>roomCanvasStates[roomId].timestamp){
@@ -125,27 +168,27 @@ io.on('connection',(socket)=>{
       state,
       timestamp,
     })
-    console.log(`Canvas update from ${userId} for room ${roomId}`);
+    // console.log(`Canvas update from ${userId} for room ${roomId}`);
     
   })
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    // console.log('User disconnected:', socket.id);
     const userEmail = socketToUser[socket.id];
-    const roomId = userRooms[socket.id];
-    console.log(`User ${userEmail} disconnected from room ${roomId}`);
+    // const roomId = userRooms[socket.id];
+    // console.log(`User ${userEmail} disconnected from room ${roomId}`);
     
     if(userEmail && userRooms[socket.id]){
-      userRooms[socket.id].forEach((roomId)=>{
-        if(roomUsers[roomId]){
-          roomUsers[roomId]=roomUsers[roomId].filter((id:string) => id!==userEmail)
-          if(roomUsers[roomId].length===0){
-            delete roomUsers[roomId]
+      userRooms[socket.id].forEach((currentRoomId:string)=>{
+        if(roomUsers[currentRoomId]){
+          roomUsers[currentRoomId]=roomUsers[currentRoomId].filter((userId:string) => userId!==userEmail)
+          if(roomUsers[currentRoomId].length===0){
+            delete roomUsers[currentRoomId]
           }
           else{
-            socket.to(roomId).emit('user-left',{
+            socket.to(currentRoomId).emit('user-left',{
               userId:userEmail,
-              userCount:roomUsers[roomId].length,
+              userCount:roomUsers[currentRoomId].length,
             })
           }
         }
@@ -154,7 +197,6 @@ io.on('connection',(socket)=>{
       delete userRooms[socket.id]
   }})
 })
-
 
 server.listen(PORT, () => {
   console.log('Server runnning successfully')
