@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "tsc",
-    "start": "ts-node app.ts",
+    "start": "node dist/app.js",
     "dev": "nodemon --exec ts-node app.ts"
   },
   "devDependencies": {
