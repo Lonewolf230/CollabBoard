@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './SaveBoard.css';
+import { useNavigate } from 'react-router-dom';
 
 interface SaveBoardProps {
   onCreate: (boardName: string) => void;
@@ -17,7 +18,7 @@ const SaveBoard: React.FC<SaveBoardProps> = ({
 }) => {
   const [boardName, setBoardName] = useState(initialName);
   const [isValid, setIsValid] = useState(true);
-
+  const navigate = useNavigate();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -36,6 +37,12 @@ const SaveBoard: React.FC<SaveBoardProps> = ({
     setBoardName(value);
     setIsValid(value.trim() !== '');
   };
+
+  const handleCancel=(e:React.MouseEvent)=>{
+    e.preventDefault()
+    handleDialog(false)
+    navigate('/dashboard')
+  }
 
   return (
     <div className="save-board-container">
@@ -72,6 +79,11 @@ const SaveBoard: React.FC<SaveBoardProps> = ({
             ) : (
               'Save'
             )}
+          </button>
+          <button 
+             className='cancel-board-button'
+             onClick={handleCancel}>
+            Cancel
           </button>
         </div>
       </form>

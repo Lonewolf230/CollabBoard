@@ -72,7 +72,7 @@
   
   .save-board-buttons {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
   
   .save-board-button {
@@ -91,6 +91,23 @@
     align-items: center;
   }
   
+  .cancel-board-button {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-width: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
   .save-board-button:hover {
     background-color: #4338ca;
   }

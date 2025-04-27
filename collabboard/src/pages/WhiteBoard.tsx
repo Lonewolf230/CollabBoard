@@ -27,7 +27,7 @@ export default function WhiteBoard() {
   const {boardId}=useParams<{boardId:string}>()
   const [searchParams]=useSearchParams()
   const toast=useToast()
-
+  const isNewBoard=useRef(false)
   const socketRef=useRef<Socket|null>(null);
   const socketInitialized = useRef(false);
 
@@ -131,6 +131,7 @@ useEffect(() => {
           setBoardData(data);
         }
       } else {
+        isNewBoard.current=true
         setShowNamePrompt(true);
       }
     } catch (error) {
@@ -188,6 +189,12 @@ useEffect(() => {
       }
       await setDoc(boardRef,newBoard)
       setBoardData(newBoard)
+      setHasEditAccess(true)
+      if(isNewBoard.current){
+        setTimeout(()=>{
+          window.location.reload()
+        },500)
+      }
       // console.log('New board created:',newBoard);
     } catch (error) {
       // console.error('Error creating new board:',error);
