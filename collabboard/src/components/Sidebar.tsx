@@ -8,7 +8,8 @@ import {
   LogOut,
   Edit,
   Users,
-  Eye
+  Eye,
+  HomeIcon
 } from 'lucide-react';
 import './Sidebar.css';
 import ExportDialog from './dialogBoxes/ExportDialog';
@@ -56,6 +57,12 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
     navigate('/')
   }
 
+  const handleHome=()=>{
+    onSaveBoard?.()
+    navigate('/')
+  }
+
+
   return (
     <>
   <div className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
@@ -95,6 +102,11 @@ export default function Sidebar({ whiteboardId,currentUserEmail,onSaveBoard,hasE
           {isExpanded && <span>Collaborate</span>}
           </div>         
         )}
+
+        <div className="sidebar-item" onClick={()=>handleHome()}>
+          <HomeIcon size={20} />
+          {isExpanded && <span>To DashBoard</span>}
+        </div>
 
       </div>
       
