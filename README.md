@@ -29,6 +29,8 @@ VITE_BACKEND_URL=http://localhost:3000
 
 the `VITE` prefix is important for Vite to use the environment variables.
 
+replace ```VITE_BACKEND_URL``` with the url you get after deployment of ur backend.
+
 These variables can be found as soon as the project is created in Firebase console and the Web app is registered. We will get a config setup like this
 
 ```
